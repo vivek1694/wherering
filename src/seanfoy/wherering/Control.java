@@ -18,27 +18,17 @@ public class Control extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.control);
-        
-        class BroadcastingClickListener implements OnClickListener {
-            private String action;
-            public BroadcastingClickListener(String action) {
-                this.action = action;
-            }
-            public void onClick(View v) {
-                getApplicationContext().
-                    sendBroadcast(
-                        new Intent(
-                            action));
-            }
-        }
-        
+        final Context appCtx = getApplicationContext();
+                
         findViewById(R.id.startup).
             setOnClickListener(
                 new BroadcastingClickListener(
+                    appCtx,
                     fullname(seanfoy.wherering.intent.action.STARTUP)));
         findViewById(R.id.shutdown).
             setOnClickListener(
                 new BroadcastingClickListener(
+                    appCtx,
                     fullname(seanfoy.wherering.intent.action.SHUTDOWN)));
         TextView txt = (TextView)findViewById(R.id.txt);
         txt.setOnClickListener(
@@ -52,6 +42,7 @@ public class Control extends Activity {
         findViewById(R.id.alert).
             setOnClickListener(
                 new BroadcastingClickListener(
+                    appCtx,
                     fullname(seanfoy.wherering.intent.action.SAY_HI)));
     }
     
@@ -65,4 +56,20 @@ public class Control extends Activity {
         Log.i(getClass().getName(), String.format("updated txt from %s", lm.getProvider(p).getName()));
         txt.setText(String.format("you are at %s", l));
     }
+    
+    private static class BroadcastingClickListener implements OnClickListener {
+        private Context appCtx;
+        private String action;
+        public BroadcastingClickListener(Context appCtx, String action) {
+            this.appCtx = appCtx;
+            this.action = action;
+        }
+        public void onClick(View v) {
+            appCtx.
+                sendBroadcast(
+                    new Intent(
+                        action));
+        }
+    }
+
 }
