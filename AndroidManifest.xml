@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="seanfoy.wherering" android:versionCode="1"
+    android:versionName="1.0">
+    <application android:icon="@drawable/icon"
+        android:label="@string/app_name">
+        <activity android:name=".Control" android:label="WhereRing Control">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <receiver android:name=".WRBroadcastReceiver"
+            android:label="WhereRing">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="seanfoy.wherering.intent.action.STARTUP" />
+                <action android:name="seanfoy.wherering.intent.action.SHUTDOWN" />
+                <action android:name="seanfoy.wherering.intent.action.PROXIMITY" />
+                <action android:name="seanfoy.wherering.intent.action.SAY_HI" />
+            </intent-filter>
+        </receiver>
+    </application>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-sdk android:minSdkVersion="6" />
+</manifest> 
