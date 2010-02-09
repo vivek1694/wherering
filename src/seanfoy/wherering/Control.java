@@ -4,6 +4,7 @@ import static seanfoy.wherering.intent.IntentHelpers.fullname;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -11,7 +12,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class Control extends Activity {
     @Override
@@ -39,6 +43,19 @@ public class Control extends Activity {
             });
         updateTxt(txt);
         
+        SharedPreferences prefs = WRBroadcastReceiver.getPrefs(appCtx);
+        CheckBox initd = (CheckBox)findViewById(R.id.initd);
+        initd.setChecked(prefs.getBoolean(android.content.Intent.ACTION_BOOT_COMPLETED, true));
+        initd.setOnCheckedChangeListener(
+            new OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    WRBroadcastReceiver.getPrefs(appCtx).
+                        edit().
+                        putBoolean(android.content.Intent.ACTION_BOOT_COMPLETED, isChecked).
+                        commit();
+                }
+            });
+        
         findViewById(R.id.alert).
             setOnClickListener(
                 new BroadcastingClickListener(
@@ -48,7 +65,7 @@ public class Control extends Activity {
     
     private void updateTxt(TextView txt) {
         Context ctx = getApplicationContext();
-        LocationManager lm = WRBroadcastReceiver.getSystemService(ctx, ctx.LOCATION_SERVICE);
+        LocationManager lm = WRBroadcastReceiver.getSystemService(ctx, Context.LOCATION_SERVICE);
         Criteria c = new Criteria();
         c.setAccuracy(Criteria.ACCURACY_FINE);
         String p = lm.getBestProvider(c, true);

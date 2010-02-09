@@ -12,6 +12,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
 import android.media.AudioManager;
@@ -30,7 +31,13 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
         else if (intent.getAction().equals(fullname(action.SHUTDOWN))) {
             unsubscribe(context);
         }
-        else {
+        else if (intent.getAction().equals(android.content.Intent.ACTION_BOOT_COMPLETED)) {
+            if (!getPrefs(context).getBoolean(android.content.Intent.ACTION_BOOT_COMPLETED, true)) {
+                return;
+            }
+            subscribe(context, getConfig(context));
+        }
+        else if (intent.getAction().equals(fullname(action.STARTUP))) {
             subscribe(context, getConfig(context));
         }
     }
@@ -114,6 +121,12 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
         AudioManager am = getSystemService(ctx, ctx.AUDIO_SERVICE);
         am.setRingerMode(ringerMode);
     }
+    static SharedPreferences getPrefs(Context ctx) {
+        return ctx.getSharedPreferences(
+                ctx.getApplicationInfo().name,
+                Context.MODE_PRIVATE);
+    }
+
     private static final int radiusM = 25;
     private final static Map<Location, Integer> getConfig(Context ctx) {
         HashMap<Location, Integer> config = new HashMap<Location, Integer>();
