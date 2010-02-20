@@ -16,7 +16,6 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
 import android.media.AudioManager;
-import android.media.RingtoneManager;
 import android.util.Log;
 
 public class WRBroadcastReceiver extends BroadcastReceiver {
@@ -122,7 +121,7 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
     }
     
     private void updateRing(Context ctx, Intent intent, Integer ringerMode) {
-        AudioManager am = getSystemService(ctx, ctx.AUDIO_SERVICE);
+        AudioManager am = getSystemService(ctx, Context.AUDIO_SERVICE);
         am.setRingerMode(ringerMode);
     }
     static SharedPreferences getPrefs(Context ctx) {
@@ -134,7 +133,6 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
     private static final int radiusM = 25;
     private final static Map<Location, Integer> getConfig(Context ctx) {
         HashMap<Location, Integer> config = new HashMap<Location, Integer>();
-        RingtoneManager rm = new RingtoneManager(ctx);
         Integer homeRing = AudioManager.RINGER_MODE_NORMAL;
         Integer parkRing = AudioManager.RINGER_MODE_VIBRATE;
         Location l = new Location("whatever");
