@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import seanfoy.Greenspun.Pair;
 import seanfoy.wherering.intent.action;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -130,22 +132,19 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
                 Context.MODE_PRIVATE);
     }
 
-    private static final int radiusM = 25;
+    static final int radiusM = 25;
     private final static Map<Location, Integer> getConfig(Context ctx) {
         HashMap<Location, Integer> config = new HashMap<Location, Integer>();
-        Integer homeRing = AudioManager.RINGER_MODE_NORMAL;
-        Integer parkRing = AudioManager.RINGER_MODE_VIBRATE;
-        Location l = new Location("whatever");
-        l.setAccuracy(radiusM);
-        // 1805 Park
-        l.setLatitude(38.629205);
-        l.setLongitude(-90.226615);
-        config.put(l, parkRing);
-        l = new Location(l);
-        // 2050 Lafayette
-        l.setLatitude(38.616951);
-        l.setLongitude(-90.21152);
-        config.put(l, homeRing);
+        DBAdapter db = new DBAdapter(ctx);
+        try {
+            db.open();
+            for (Pair<Location, Integer> p : db.allPlaces()) {
+                config.put(p.fst, p.snd);
+            }
+        }
+        finally {
+            db.close();
+        }
         return config;
     }
 }
