@@ -43,13 +43,17 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
     }
     
     private void raiseAlert(Context context) {
+            String app_name = context.getString(R.string.app_name);
+            String app_ticker = context.getString(R.string.alert_ticker);
+            String alert_text = context.getString(R.string.alert_text);
             NotificationManager nm =
                 (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-            Notification note = new Notification(R.drawable.icon, "gbr receipt", System.currentTimeMillis());
+            Notification note =
+                new Notification(R.drawable.icon, app_ticker, System.currentTimeMillis());
             note.setLatestEventInfo(
                     context,
-                    "title",
-                    "GeographicBroadcastReceiver here.",
+                    app_name,
+                    alert_text,
                     PendingIntent.getActivity(
                             context,
                             0,

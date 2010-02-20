@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World!</string>
     <string name="app_name">WhereRing</string>
+    <string name="alert_ticker">@string/app_name</string>
+    <string name="alert_text">alert</string>
+    <string name="preview_alert">preview alert</string>
+    <string name="startup">startup</string>
+    <string name="shutdown">shutdown</string>
+    <string name="initd">run at startup</string>
 </resources>
