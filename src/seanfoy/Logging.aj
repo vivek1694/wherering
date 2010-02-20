@@ -17,8 +17,9 @@ public aspect Logging {
 	// type parameters aren't available at runtime
 	@SuppressWarnings("unchecked")
 	before(BroadcastReceiver receiver, Intent intent): BroadcastReceipt(receiver, intent) {
-		Log.i(
-			"helloandroid",
+	    String tag = receiver.getClass().getName();
+	    Log.i(
+		    tag,
 			String.format(
 				"%s received %s",
 				receiver.getClass().getName(),
@@ -26,7 +27,9 @@ public aspect Logging {
 		Bundle b = intent.getExtras();
 		if (b != null) {
 			for (String k : b.keySet()) {
-				Log.i("helloandroid", String.format("%s: %s", k, b.get(k).toString()));
+				Log.i(
+				    tag,
+				    String.format("%s: %s", k, b.get(k).toString()));
 			}
 		}
 	}
