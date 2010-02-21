@@ -70,7 +70,7 @@ public class Control extends Activity {
         c.setAccuracy(Criteria.ACCURACY_FINE);
         String p = lm.getBestProvider(c, true);
         Location l = lm.getLastKnownLocation(p);
-        Log.i(getClass().getName(), String.format("updated txt from %s", lm.getProvider(p).getName()));
+        Log.i(getClass().getName(), String.format("updated lastLocation from %s", lm.getProvider(p).getName()));
         txt.setText(String.format("you are at %s", l));
     }
     
