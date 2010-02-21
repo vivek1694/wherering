@@ -63,5 +63,25 @@
          build steps are used.
     -->
     <setup />
-
+    <target name="configure" depends="-release-check">
+        <condition property="config-suffix" value="release" else="debug">
+            <isset property="release.sign" />
+        </condition>
+        <echo message="configure ${config-suffix}" />
+        <copy todir=".">
+            <fileset dir=".">
+                <include name="**/*.${config-suffix}" />
+                <exclude name=".hg/**" />
+            </fileset>
+            <mapper type="glob" from="*.${config-suffix}" to="*" />
+        </copy>
+        <copy todir=".">
+            <fileset dir="configurable-res">
+                <include name="**/*.xml" />
+            </fileset>
+            <mapper type="glob" from="*" to="res/*" />
+        </copy>
+    </target>
+	<target name="-resource-src" depends="android_rules.-dirs, configure, android_rules.-resource-src">
+    </target>
 </project>
