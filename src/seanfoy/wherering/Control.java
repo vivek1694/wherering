@@ -34,14 +34,14 @@ public class Control extends Activity {
                 new BroadcastingClickListener(
                     appCtx,
                     fullname(seanfoy.wherering.intent.action.SHUTDOWN)));
-        TextView txt = (TextView)findViewById(R.id.txt);
-        txt.setOnClickListener(
+        TextView lastLocation = (TextView)findViewById(R.id.lastLocation);
+        lastLocation.setOnClickListener(
             new OnClickListener() {
                 public void onClick(View v) {
-                    updateTxt((TextView)v);
+                    updateLastLocation((TextView)v);
                 }
             });
-        updateTxt(txt);
+        updateLastLocation(lastLocation);
         
         SharedPreferences prefs = WRBroadcastReceiver.getPrefs(appCtx);
         CheckBox initd = (CheckBox)findViewById(R.id.initd);
@@ -63,7 +63,7 @@ public class Control extends Activity {
                     fullname(seanfoy.wherering.intent.action.SAY_HI)));
     }
     
-    private void updateTxt(TextView txt) {
+    private void updateLastLocation(TextView txt) {
         Context ctx = getApplicationContext();
         LocationManager lm = WRBroadcastReceiver.getSystemService(ctx, Context.LOCATION_SERVICE);
         Criteria c = new Criteria();
