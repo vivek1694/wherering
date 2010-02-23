@@ -23,7 +23,15 @@ public class Control extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.control);
         final Context appCtx = getApplicationContext();
-                
+
+        findViewById(R.id.notable_places).
+            setOnClickListener(
+                new OnClickListener() {
+                    public void onClick(View arg0) {
+                        startActivity(
+                            new Intent(Control.this, NotablePlaces.class));
+                    }
+                });
         findViewById(R.id.startup).
             setOnClickListener(
                 new BroadcastingClickListener(
@@ -88,5 +96,4 @@ public class Control extends Activity {
                         action));
         }
     }
-
 }

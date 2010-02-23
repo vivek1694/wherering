@@ -11,6 +11,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".NotablePlaces" android:label="Places">
+        </activity>
+        <activity android:name=".PlaceEdit" android:label="Edit Place" />
         <receiver android:name=".WRBroadcastReceiver"
             android:label="WhereRing">
             <intent-filter>

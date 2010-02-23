@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import seanfoy.Greenspun.Func1;
 import seanfoy.Greenspun.Pair;
 import seanfoy.wherering.intent.action;
 import android.app.Notification;
@@ -134,17 +135,17 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
 
     static final int radiusM = 25;
     private final static Map<Location, Integer> getConfig(Context ctx) {
-        HashMap<Location, Integer> config = new HashMap<Location, Integer>();
-        DBAdapter db = new DBAdapter(ctx);
-        try {
-            db.open();
-            for (Pair<Location, Integer> p : db.allPlaces()) {
-                config.put(p.fst, p.snd);
-            }
-        }
-        finally {
-            db.close();
-        }
+        final HashMap<Location, Integer> config = new HashMap<Location, Integer>();
+        DBAdapter.withDBAdapter(
+            ctx,
+            new Func1<DBAdapter, Void>() {
+                public Void f(DBAdapter adapter) {
+                    for (Pair<Location, Integer> p : Place.allPlaces(adapter)) {
+                        config.put(p.fst, p.snd);
+                    }
+                    return null;
+                }
+            });
         return config;
     }
 }

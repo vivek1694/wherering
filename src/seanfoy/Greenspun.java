@@ -72,6 +72,21 @@ public final class Greenspun {
 		for (T _ : ts) ++i;
 		return i;
 	}
+	public static <T, U> Iterable<U> map(final Func1<T, U> f, final Iterable<T> xs) {
+	    return new Iterable<U>() {
+            public Iterator<U> iterator() {
+                final Iterator<T> xsi = xs.iterator();
+                return new ROIterator<U>() {
+                    public boolean hasNext() {
+                        return xsi.hasNext();
+                    }
+                    public U next() {
+                        return f.f(xsi.next());
+                    }
+                };
+            }
+	    };
+	}
 	public interface Func0<T> {
 		public T f();
 	}
