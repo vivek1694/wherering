@@ -112,7 +112,6 @@ public class NotablePlaces extends Activity {
     
     @Override
     public void onActivityResult(int requestCode, int responseCode, Intent intent) {
-        Log.i("colleagues", String.format("(%s %s %s)", requestCode, responseCode, intent));
         if (requestCode != PLACE_EDIT) throw new IllegalArgumentException("unrecognized request");
         if (responseCode != RESULT_OK) return;
         fillData();

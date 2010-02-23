@@ -36,10 +36,8 @@ public class PlaceEdit extends Activity {
                 new OnClickListener() {
                     public void onClick(View v) {
                         try {
-                            Log.i("hi", "italy");
                             PlaceEdit.this.setResult(RESULT_OK);
                             asPlace().upsert(db);
-                            Log.i("pretty", "fantastic");
                             PlaceEdit.this.finish();
                         }
                         catch (IllegalStateException e) {
