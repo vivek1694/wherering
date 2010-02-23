@@ -8,12 +8,12 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -33,21 +33,45 @@ public class NotablePlaces extends Activity {
             new OnItemClickListener() {
                 public void onItemClick(AdapterView<?> aview, View view,
                         int position, long id) {
-                    Log.i(NotablePlaces.this.getClass().getName(), "hi");
-                    Toast.makeText(
-                        getApplicationContext(),
-                        ((TextView)view).getText(),
-                        Toast.LENGTH_SHORT);
+                    editPlace((Place)aview.getItemAtPosition(position));
                 }
             });
         registerForContextMenu(placeList);
+    }
+    
+    public void editPlace(Place place) {
+        Intent edit =
+            new Intent(
+                    android.content.Intent.ACTION_EDIT,
+                    null,
+                    getApplicationContext(),
+                    PlaceEdit.class);
+        if (place != null) {
+            edit.putExtra(
+                getString(R.string.latitude),
+                place.location.getLatitude());
+            edit.putExtra(
+                getString(R.string.longitude),
+                place.location.getLongitude());
+        }
+        startActivityForResult(
+            edit,
+            PLACE_EDIT);
     }
 
     private void fillData() {
         ListView placeList =
             (ListView)findViewById(R.id.place_list);
         ArrayAdapter<Place> places =
-            new ArrayAdapter<Place>(this, R.layout.list_item);
+            new ArrayAdapter<Place>(this, R.layout.list_item) {
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent) {
+                    TextView result = (TextView)super.getView(position, convertView, parent);
+                    result.setText(getItem(position).name);
+                    result.getLayoutParams().width = ViewGroup.LayoutParams.FILL_PARENT;
+                    return result;
+                }
+            };
         for (Place p : Place.allPlaces(db)) {
             places.add(p);
         }
@@ -85,21 +109,7 @@ public class NotablePlaces extends Activity {
         EDIT("edit") {
             @Override
             public void selected(NotablePlaces activity, Place place) {
-                Intent edit =
-                    new Intent(
-                            android.content.Intent.ACTION_EDIT,
-                            null,
-                            activity.getApplicationContext(),
-                            PlaceEdit.class);
-                edit.putExtra(
-                    activity.getString(R.string.latitude),
-                    place.fst.getLatitude());
-                edit.putExtra(
-                    activity.getString(R.string.longitude),
-                    place.fst.getLongitude());
-                activity.startActivityForResult(
-                    edit,
-                    PLACE_EDIT);
+                activity.editPlace(place);
             }
         };
         

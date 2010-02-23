@@ -54,7 +54,7 @@ public final class Greenspun {
 						return tsi.hasNext() && usi.hasNext();
 					}
 					public Pair<T, U> next() {
-						return new Pair<T, U>(tsi.next(), usi.next());
+						return Pair.makePair(tsi.next(), usi.next());
 					}
 				};
 			}
@@ -69,7 +69,7 @@ public final class Greenspun {
 	}
 	public static <T> int count(Iterable<T> ts) {
 		int i = 0;
-		for (T _ : ts) ++i;
+		for (@SuppressWarnings("unused") T _ : ts) ++i;
 		return i;
 	}
 	public static <T, U> Iterable<U> map(final Func1<T, U> f, final Iterable<T> xs) {
@@ -102,6 +102,9 @@ public final class Greenspun {
 		public Pair(T fst, U snd) {
 			this.fst = fst;
 			this.snd = snd;
+		}
+		public static <T, U> Pair<T, U> makePair(T fst, U snd) {
+		    return new Pair<T, U>(fst, snd);
 		}
 		public Map<String, Object> getVE() {
 			Map<String, Object> result = new HashMap<String, Object>();

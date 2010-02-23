@@ -1,125 +1,62 @@
 package seanfoy.wherering;
 
+import java.util.HashMap;
 import java.util.Iterator;
-
+import java.util.Map;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.media.AudioManager;
-import android.util.Log;
+import seanfoy.Greenspun;
 import seanfoy.Greenspun.Func1;
-import seanfoy.Greenspun.Pair;
 import seanfoy.Greenspun.ROIterator;
-
-public class Place extends Pair<Location, Integer> {
-    public Place(Location l, Integer ringerMode) {
-        super(l, ringerMode);
+public class Place {
+    public Place(Location l, RingerMode ringerMode, String name) {
+        this.location = l;
+        this.ringerMode = ringerMode;
+        this.name = name;
     }
     
     public void upsert(DBAdapter adapter) {
-        adapter.withDB(
-            new Func1<SQLiteDatabase, Void>() {
-                public Void f(SQLiteDatabase db) {
-                    ContentValues V = makeContentValues(fst, snd);
-                    db.replace(TABLE_NAME, null, V);                   
-                    return null;
-                }
-            });
+        adapter.upsert(TABLE_NAME, makeContentValues());
     }
     
     public void delete(DBAdapter adapter) {
-        deletePlace(adapter, fst);
+        adapter.delete(TABLE_NAME, DBAdapter.makeWhereClause(getValueEquality()));
     }
     
-    private static Place makePlace(final Cursor c) {
+    private static Place retrieve(final Cursor c) {
         Location l = new Location("whatever");
         l.setLatitude(c.getDouble(c.getColumnIndex("latitude")));
         l.setLongitude(c.getDouble(c.getColumnIndex("longitude")));
         Place result =
             new Place(
-                    l,
-                    c.getInt(c.getColumnIndex("ringer_mode")));
+                l,
+                RingerMode.fromInt(
+                    c.getInt(c.getColumnIndex("ringer_mode"))),
+                c.getString(c.getColumnIndex("name")));
         return result;
     }
-
-    public static void createPlace(SQLiteDatabase db, final Location l, final int ringerMode) {
-        ContentValues initialValues = makeContentValues(l, ringerMode);
-        db.insert(TABLE_NAME, null, initialValues);
-    }
     
-    public static Location createPlace(DBAdapter adapter, final Location l, final int ringerMode) {
-        adapter.withDB(
-            new Func1<SQLiteDatabase, Void>() {
-                public Void f(SQLiteDatabase db) {
-                    createPlace(db, l, ringerMode);
-                    return null;
-                }
-            });
-        return l;
-    }
-
-    private static ContentValues makeContentValues(Location l, int ringerMode) {
-        ContentValues initialValues = new ContentValues();
-        initialValues.put("latitude", l.getLatitude());
-        initialValues.put("longitude", l.getLongitude());
-        initialValues.put("ringer_mode", ringerMode);
-        return initialValues;
-    }
-    
-    public static void deletePlace(DBAdapter adapter, final Location l) {
-        adapter.withDB(
-            new Func1<SQLiteDatabase, Void>() {
-                public Void f(SQLiteDatabase db) {
-                    db.delete(
-                            TABLE_NAME,
-                            DBAdapter.makeWhereClause(l),
-                            null);
-                    return null;
-                }
-            });
-    }
-
-    public static int updatePlace(DBAdapter adapter, final Location l, final int ringerMode) {
-        return
-            adapter.withDB(
-                new Func1<SQLiteDatabase, Integer>() {
-                    public Integer f(SQLiteDatabase db) {
-                        ContentValues args = makeContentValues(l, ringerMode);
-                        return
-                            db.update(
-                                TABLE_NAME,
-                                args,
-                                DBAdapter.makeWhereClause(l),
-                                null);
-                    }
-                });
-    }
+    private static final String [] columnList =
+        new String [] {
+            "latitude",
+            "longitude",
+            "name",
+            "ringer_mode"};
     
     public static Place fetch(DBAdapter adapter, final Location key) {
+        Place template = new Place(key, RingerMode.normal, "");
         return
-            adapter.withDB(
-                new Func1<SQLiteDatabase, Place>() {
-                    public Place f(SQLiteDatabase db) {
-                        Cursor c =
-                            db.query(
-                                TABLE_NAME,
-                                new String [] {
-                                    "latitude",
-                                    "longitude",
-                                    "ringer_mode"},
-                                DBAdapter.makeWhereClause(key),
-                                null,
-                                null,
-                                null,
-                                null);
-                        try {
-                            c.moveToFirst();
-                            return makePlace(c);
-                        }
-                        finally {
-                            c.close();
-                        }
+            adapter.withCursor(
+                TABLE_NAME,
+                columnList,
+                DBAdapter.makeWhereClause(template.getValueEquality()),
+                new Func1<Cursor, Place>() {
+                    public Place f(Cursor c) {
+                        c.moveToFirst();
+                        return retrieve(c);
                     }
                 });
     }
@@ -132,10 +69,7 @@ public class Place extends Pair<Location, Integer> {
                         return
                             db.query(
                                 TABLE_NAME,
-                                new String [] {
-                                        "latitude",
-                                        "longitude",
-                                        "ringer_mode"},
+                                columnList,
                                 null,
                                 null,
                                 null,
@@ -156,7 +90,7 @@ public class Place extends Pair<Location, Integer> {
                     }
 
                     public Place next() {
-                        Place result = makePlace(c);
+                        Place result = retrieve(c);
                         hn = c.moveToNext();
                         if (!hn) c.close();
                         return result;
@@ -165,6 +99,15 @@ public class Place extends Pair<Location, Integer> {
             }
         };
     }
+
+    private ContentValues makeContentValues() {
+        ContentValues initialValues = new ContentValues();
+        initialValues.put("latitude", location.getLatitude());
+        initialValues.put("longitude", location.getLongitude());
+        initialValues.put("name", name);
+        initialValues.put("ringer_mode", ringerMode.ringer_mode);
+        return initialValues;
+    }
     
     public static void ddl(SQLiteDatabase db) {
         db.execSQL(
@@ -172,6 +115,7 @@ public class Place extends Pair<Location, Integer> {
                     "create table %s (" +
                     " latitude double precision," +
                     " longitude double precision," +
+                    " name text," +
                     " ringer_mode integer," +
                     " constraint %s_PK primary key (latitude, longitude))",
                     TABLE_NAME, TABLE_NAME));
@@ -182,12 +126,19 @@ public class Place extends Pair<Location, Integer> {
         // 1805 Park
         l.setLatitude(38.629205);
         l.setLongitude(-90.226615);
-        createPlace(db, l, parkRing);
+        createPlace(db, l, parkRing, "Park Avenue");
         l = new Location(l);
         // 2050 Lafayette
         l.setLatitude(38.616951);
         l.setLongitude(-90.21152);
-        createPlace(db, l, homeRing);
+        createPlace(db, l, homeRing, "Lafayette Avenue");
+    }
+    
+    private static Place createPlace(SQLiteDatabase db, final Location l, final int ringerMode, final String name) {
+        Place result = new Place(l, RingerMode.fromInt(ringerMode), name);
+        ContentValues initialValues = result.makeContentValues();
+        db.insert(TABLE_NAME, null, initialValues);
+        return result;
     }
 
     public static void teardownDDL(SQLiteDatabase db) {
@@ -198,4 +149,51 @@ public class Place extends Pair<Location, Integer> {
     }
     
     private static final String TABLE_NAME = "Places";
+    
+    public final Location location;
+    public RingerMode ringerMode;
+    public String name;
+    
+    private Map<String, Object> getValueEquality() {
+        HashMap<String, Object> ve = new HashMap<String, Object>();
+        ve.put("latitude", location.getLatitude());
+        ve.put("longitude", location.getLongitude());
+        return ve;
+    }
+    private static Func1<Place, Map<String, ?>> getVE =
+        new Func1<Place, Map<String, ?>>() {
+            public Map<String, ?> f(Place p) {
+                return p.getValueEquality();
+            }
+        };
+    @Override
+    public boolean equals(Object o) {
+        return Greenspun.equals(this, o, getVE);
+    }
+    @Override
+    public int hashCode() {
+        return Greenspun.hashCode(this, getVE);
+    }
+    @Override
+    public String toString() {
+        return Greenspun.toString(this, getVE);
+    }
+    
+    public enum RingerMode {
+        normal(AudioManager.RINGER_MODE_NORMAL),
+        silent(AudioManager.RINGER_MODE_SILENT),
+        vibrate(AudioManager.RINGER_MODE_VIBRATE);
+        
+        private RingerMode(int ringer_mode) {
+            this.ringer_mode = ringer_mode;
+        }
+        public final int ringer_mode;
+        public static RingerMode fromInt(int rm) {
+            for (RingerMode m : values()) {
+                if (m.ringer_mode == rm) return m;
+            }
+            throw new IllegalArgumentException();
+        }
+    }
 }
+

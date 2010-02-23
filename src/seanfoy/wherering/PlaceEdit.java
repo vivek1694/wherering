@@ -1,11 +1,10 @@
 package seanfoy.wherering;
 
+import seanfoy.wherering.Place.RingerMode;
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
-import android.media.AudioManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
@@ -74,15 +73,17 @@ public class PlaceEdit extends Activity {
         fillData(p);
     }
     private void fillData(Place p) {
+        EditText nom = findTypedViewById(R.id.name);
         EditText lat = findTypedViewById(R.id.latitude);
         EditText lng = findTypedViewById(R.id.longitude);
         Spinner rm = findTypedViewById(R.id.ringer_mode);
-        lat.setText(Double.toString(p.fst.getLatitude()));
-        lng.setText(Double.toString(p.fst.getLongitude()));
+        lat.setText(Double.toString(p.location.getLatitude()));
+        lng.setText(Double.toString(p.location.getLongitude()));
         rm.setSelection(
             positionFor(
                 rm,
-                RingerMode.fromMode(p.snd)));
+                p.ringerMode));
+        nom.setText(p.name);
     }
     
     private <T> int positionFor(Spinner s, T x) {
@@ -96,24 +97,8 @@ public class PlaceEdit extends Activity {
                 String.format("no such item %s", x));
     }
     
-    private enum RingerMode {
-        normal(AudioManager.RINGER_MODE_NORMAL),
-        silent(AudioManager.RINGER_MODE_SILENT),
-        vibrate(AudioManager.RINGER_MODE_VIBRATE);
-        
-        private RingerMode(int ringer_mode) {
-            this.ringer_mode = ringer_mode;
-        }
-        public final int ringer_mode;
-        public static RingerMode fromMode(int rm) {
-            for (RingerMode m : values()) {
-                if (m.ringer_mode == rm) return m;
-            }
-            throw new IllegalArgumentException();
-        }
-    }
-    
     private Place asPlace() {
+        EditText name = findTypedViewById(R.id.name);
         Location l = new Location("whatever");
         l.setLatitude(extractCoordinate(R.id.latitude));
         l.setLongitude(extractCoordinate(R.id.longitude));
@@ -122,7 +107,7 @@ public class PlaceEdit extends Activity {
             (ArrayAdapter<RingerMode>)rms.getAdapter();
         RingerMode rm =
             rma.getItem(rms.getSelectedItemPosition());
-        return new Place(l, rm.ringer_mode);
+        return new Place(l, rm, name.getText().toString());
     }
     private double extractCoordinate(int id) {
         EditText text = findTypedViewById(id);

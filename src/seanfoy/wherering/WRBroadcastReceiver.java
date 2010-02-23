@@ -1,13 +1,10 @@
 package seanfoy.wherering;
 
 import static seanfoy.wherering.intent.IntentHelpers.fullname;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import seanfoy.Greenspun.Func1;
-import seanfoy.Greenspun.Pair;
 import seanfoy.wherering.intent.action;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -16,7 +13,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Location;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.util.Log;
@@ -74,10 +70,10 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
         return (T)ctx.getSystemService(name);
     }
     
-    private void subscribe(Context ctx, Map<Location, Integer> config) {
+    private void subscribe(Context ctx, Set<Place> config) {
         LocationManager lm = getSystemService(ctx, Context.LOCATION_SERVICE);
         synchronized(lmsubsLock) {
-            for (Map.Entry<Location, Integer> c : config.entrySet()) {
+            for (Place c : config) {
                 PendingIntent i =
                     PendingIntent.getBroadcast(
                         ctx,
@@ -87,8 +83,8 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
                         0);
                 lmsubs.add(i);
                 lm.addProximityAlert(
-                    c.getKey().getLatitude(),
-                    c.getKey().getLongitude(),
+                    c.location.getLatitude(),
+                    c.location.getLongitude(),
                     radiusM,
                     // never time out
                     // If this app is killed, the
@@ -104,8 +100,8 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
                             ctx, 0, new Intent(fullname(action.SAY_HI)), 0);
                 lmsubs.add(j);
                 lm.addProximityAlert(
-                    c.getKey().getLatitude(),
-                    c.getKey().getLongitude(),
+                    c.location.getLatitude(),
+                    c.location.getLongitude(),
                     radiusM,
                     -1,
                     j);
@@ -134,14 +130,14 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
     }
 
     static final int radiusM = 25;
-    private final static Map<Location, Integer> getConfig(Context ctx) {
-        final HashMap<Location, Integer> config = new HashMap<Location, Integer>();
+    private final static Set<Place> getConfig(Context ctx) {
+        final HashSet<Place> config = new HashSet<Place>();
         DBAdapter.withDBAdapter(
             ctx,
             new Func1<DBAdapter, Void>() {
                 public Void f(DBAdapter adapter) {
-                    for (Pair<Location, Integer> p : Place.allPlaces(adapter)) {
-                        config.put(p.fst, p.snd);
+                    for (Place p : Place.allPlaces(adapter)) {
+                        config.add(p);
                     }
                     return null;
                 }

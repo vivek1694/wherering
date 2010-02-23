@@ -9,6 +9,7 @@
     <string name="startup">startup</string>
     <string name="shutdown">shutdown</string>
     <string name="initd">run at startup</string>
+    <string name="name">name</string>
     <string name="latitude">latitude</string>
     <string name="longitude">longitude</string>
     <string name="ringer_mode">ringer mode</string>

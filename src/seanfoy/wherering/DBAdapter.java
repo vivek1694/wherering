@@ -1,10 +1,14 @@
 package seanfoy.wherering;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
+
 import seanfoy.Greenspun.Func1;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.*;
 import android.database.sqlite.*;
-import android.location.Location;
 
 public class DBAdapter {
     public DBAdapter(Context ctx) {
@@ -18,6 +22,14 @@ public class DBAdapter {
     
     public void close() {
         dbHelper.close();
+    }
+    
+    public void upsert(String table, ContentValues V) {
+        db.replace(table, null, V);
+    }
+    
+    public void delete(String table, String whereClause) {
+        db.delete(table, whereClause, null);
     }
     
     public <T> T withDB(Func1<SQLiteDatabase, T> f) {
@@ -35,11 +47,64 @@ public class DBAdapter {
         }
     }
     
-    public static String makeWhereClause(Location l) {
-        return String.format(
-                "latitude = %f and longitude = %f",
-                l.getLatitude(),
-                l.getLongitude());
+    public <T> T withCursor(String table, String [] columns, String where, Func1<Cursor, T> f) {
+        Cursor c =
+            db.query(
+                table,
+                columns,
+                where,
+                null,
+                null,
+                null,
+                null);
+        try {
+            c.moveToFirst();
+            return f.f(c);
+        }
+        finally {
+            c.close();
+        }
+    }
+    
+    private static void trimEnd(StringBuilder sb, String waste) {
+        if (sb.length() < waste.length()) return;
+        int tailStart = sb.length() - waste.length();
+        int tailEnd = sb.length();
+        CharSequence tail = sb.subSequence(tailStart, tailEnd);
+        if (!tail.equals(waste)) return;
+        sb.delete(tailStart, tailEnd);
+    }
+    
+    public static String escapeSQLIdentifier(String id) {
+        return id.replace("\"", "\"\"");
+    }
+    
+    private static final SimpleDateFormat ISO8601ShortDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SZ");
+    public static String escapeSQLLiteral(Object v) {
+        if (v == null) throw new IllegalArgumentException();
+        if (v instanceof CharSequence) {
+            return String.format("'%s'", v.toString().replaceAll("'", "''"));
+        }
+        else if (v instanceof Number) {
+            return v.toString();
+        }
+        else if (v instanceof Date) {
+            return ISO8601ShortDateTime.format((Date)v);
+        }
+        return escapeSQLLiteral(v.toString());
+    }
+    
+    public static <T extends Map<String, ?>> String makeWhereClause(T k) {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, ?> p : k.entrySet()) {
+            sb.append(
+                String.format(
+                    "%s = %s and ",
+                    escapeSQLIdentifier(p.getKey()),
+                    escapeSQLLiteral(p.getValue())));
+        }
+        trimEnd(sb, " and ");
+        return sb.toString();
     }
     
     private static class DatabaseHelper extends SQLiteOpenHelper {
