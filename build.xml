@@ -62,7 +62,12 @@
          This will ensure that the properties are setup correctly but that your customized
          build steps are used.
     -->
+    <copy 
+        file="AndroidManifest.xml.tmpl"
+        tofile="AndroidManifest.xml"
+        overwrite="true" />
     <setup />
+
     <target name="configure" depends="-release-check">
         <condition property="config-suffix" value="release" else="debug">
             <isset property="release.sign" />
@@ -81,7 +86,18 @@
             </fileset>
             <mapper type="glob" from="*" to="res/*" />
         </copy>
+        <condition property="debuggable" value="false" else="true">
+          <matches string="${config-suffix}" pattern="release" />
+        </condition>
+        <copy
+            file="AndroidManifest.xml.tmpl"
+            tofile="AndroidManifest.xml"
+            overwrite="true">
+          <filterset>
+            <filter token="debuggable" value="${debuggable}" />
+          </filterset>
+        </copy>
     </target>
-	<target name="-resource-src" depends="android_rules.-dirs, configure, android_rules.-resource-src">
+    <target name="-resource-src" depends="android_rules.-dirs, configure, android_rules.-resource-src">
     </target>
 </project>
