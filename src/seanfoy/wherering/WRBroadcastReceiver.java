@@ -16,7 +16,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.media.AudioManager;
-import android.util.Log;
 
 public class WRBroadcastReceiver extends BroadcastReceiver {
     @Override
@@ -105,7 +104,6 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
     }
 
     private void unsubscribe(Context ctx) {
-        Log.i(getClass().getName(), "unsub");
         LocationManager lm = getSystemService(ctx, Context.LOCATION_SERVICE);
         synchronized(lmsubsLock) {
             for (PendingIntent i : lmsubs) {
