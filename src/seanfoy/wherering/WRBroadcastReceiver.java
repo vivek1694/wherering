@@ -1,9 +1,10 @@
 package seanfoy.wherering;
 
 import static seanfoy.wherering.intent.IntentHelpers.fullname;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.HashSet;
 import java.util.Set;
-
 import seanfoy.Greenspun.Func1;
 import seanfoy.wherering.intent.action;
 import android.app.Notification;
@@ -21,9 +22,10 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(fullname(action.PROXIMITY))) {
-            updateRing(context, intent, AudioManager.RINGER_MODE_SILENT);
+            updateRing(context, intent);
+            context.sendBroadcast(new Intent(fullname(action.ALERT)));
         }
-        else if (intent.getAction().equals(fullname(action.SAY_HI))) {
+        else if (intent.getAction().equals(fullname(action.ALERT))) {
             raiseAlert(context);
         }
         else if (intent.getAction().equals(fullname(action.SHUTDOWN))) {
@@ -70,21 +72,24 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
         return (T)ctx.getSystemService(name);
     }
     
-    private void subscribe(Context ctx, Set<Place> config) {
+    private static final String placeKeyName = WRBroadcastReceiver.class.getName() + ":place-key";
+    private void subscribe(Context ctx, HashMap<Integer, Place> config) {
         LocationManager lm = getSystemService(ctx, Context.LOCATION_SERVICE);
         synchronized(lmsubsLock) {
-            for (Place c : config) {
-                PendingIntent i =
+            for (Map.Entry<Integer, Place> c : config.entrySet()) {
+                Intent i = new Intent(fullname(action.PROXIMITY));
+                i.putExtra(placeKeyName, c.getKey());
+                PendingIntent pi =
                     PendingIntent.getBroadcast(
                         ctx,
                         // docs say "currently not used"
                         0,
-                        new Intent(fullname(action.PROXIMITY)),
+                        i,
                         0);
-                lmsubs.add(i);
+                lmsubs.add(pi);
                 lm.addProximityAlert(
-                    c.location.getLatitude(),
-                    c.location.getLongitude(),
+                    c.getValue().location.getLatitude(),
+                    c.getValue().location.getLongitude(),
                     radiusM,
                     // never time out
                     // If this app is killed, the
@@ -94,17 +99,7 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
                     // with replacement, courtesy of
                     // an Alarm.
                     -1,
-                    i);
-                PendingIntent j =
-                    PendingIntent.getBroadcast(
-                            ctx, 0, new Intent(fullname(action.SAY_HI)), 0);
-                lmsubs.add(j);
-                lm.addProximityAlert(
-                    c.location.getLatitude(),
-                    c.location.getLongitude(),
-                    radiusM,
-                    -1,
-                    j);
+                    pi);
             }
         }
     }
@@ -119,9 +114,21 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
         }
     }
     
-    private void updateRing(Context ctx, Intent intent, Integer ringerMode) {
+    private int previous_ringer_mode = AudioManager.RINGER_MODE_NORMAL;
+    private void updateRing(Context ctx, Intent intent) {
+        int localRingMode = getConfig(ctx).get(intent.getExtras().getInt(placeKeyName)).ringerMode.ringer_mode;
         AudioManager am = getSystemService(ctx, Context.AUDIO_SERVICE);
-        am.setRingerMode(ringerMode);
+        if (intent.getExtras().getBoolean(LocationManager.KEY_PROXIMITY_ENTERING)) {
+            previous_ringer_mode = am.getRingerMode();
+            am.setRingerMode(localRingMode);
+        }
+        else {
+            // leave the ringer as we found it
+            // (unless the user has changed it meanwhile)
+            if (am.getRingerMode() == localRingMode) {
+                am.setRingerMode(previous_ringer_mode);
+            }
+        }
     }
     static SharedPreferences getPrefs(Context ctx) {
         return ctx.getSharedPreferences(
@@ -130,14 +137,14 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
     }
 
     static final int radiusM = 25;
-    private final static Set<Place> getConfig(Context ctx) {
-        final HashSet<Place> config = new HashSet<Place>();
+    private final static HashMap<Integer, Place> getConfig(Context ctx) {
+        final HashMap<Integer, Place> config = new HashMap<Integer, Place>();
         DBAdapter.withDBAdapter(
             ctx,
             new Func1<DBAdapter, Void>() {
                 public Void f(DBAdapter adapter) {
                     for (Place p : Place.allPlaces(adapter)) {
-                        config.add(p);
+                        config.put(p.hashCode(), p);
                     }
                     return null;
                 }

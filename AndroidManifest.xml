@@ -21,7 +21,7 @@
                 <action android:name="seanfoy.wherering.intent.action.STARTUP" />
                 <action android:name="seanfoy.wherering.intent.action.SHUTDOWN" />
                 <action android:name="seanfoy.wherering.intent.action.PROXIMITY" />
-                <action android:name="seanfoy.wherering.intent.action.SAY_HI" />
+                <action android:name="seanfoy.wherering.intent.action.ALERT" />
             </intent-filter>
         </receiver>
     </application>

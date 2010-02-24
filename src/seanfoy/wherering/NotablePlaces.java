@@ -136,6 +136,7 @@ public class NotablePlaces extends Activity {
     public void onActivityResult(int requestCode, int responseCode, Intent intent) {
         if (requestCode != PLACE_EDIT) throw new IllegalArgumentException("unrecognized request");
         if (responseCode != RESULT_OK) return;
+        db.open();
         fillData();
     }
     

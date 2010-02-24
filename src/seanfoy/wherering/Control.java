@@ -68,7 +68,7 @@ public class Control extends Activity {
             setOnClickListener(
                 new BroadcastingClickListener(
                     appCtx,
-                    fullname(seanfoy.wherering.intent.action.SAY_HI)));
+                    fullname(seanfoy.wherering.intent.action.ALERT)));
     }
     
     private void updateLastLocation(TextView txt) {
