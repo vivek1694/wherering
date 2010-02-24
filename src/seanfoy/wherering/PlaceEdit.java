@@ -59,6 +59,18 @@ public class PlaceEdit extends Activity {
             });
     }
     
+    @Override
+    public void onResume() {
+        super.onResume();
+        db.open();
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        db.close();
+    }
+    
     private void fillData() {
         Intent i = getIntent();
         String latitude = getString(R.string.latitude);

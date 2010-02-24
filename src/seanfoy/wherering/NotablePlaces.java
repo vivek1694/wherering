@@ -39,6 +39,18 @@ public class NotablePlaces extends Activity {
         registerForContextMenu(placeList);
     }
     
+    @Override
+    public void onResume() {
+        super.onResume();
+        db.open();
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        db.close();
+    }
+    
     public void editPlace(Place place) {
         Intent edit =
             new Intent(

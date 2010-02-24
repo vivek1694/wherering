@@ -16,13 +16,18 @@ public class DBAdapter {
     }
     
     public void open() throws SQLException {
+        if (open_p) return;
         dbHelper = new DatabaseHelper(ctx);
         db = dbHelper.getWritableDatabase();
+        open_p = true;
     }
     
     public void close() {
+        if (!open_p) return;
         dbHelper.close();
+        open_p = false;
     }
+    private boolean open_p;
     
     public void upsert(String table, ContentValues V) {
         db.replace(table, null, V);
