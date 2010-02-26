@@ -15,16 +15,17 @@ public final class R {
     }
     public static final class id {
         public static final int alert=0x7f050005;
-        public static final int done=0x7f05000b;
+        public static final int done=0x7f050008;
         public static final int initd=0x7f050003;
         public static final int lastLocation=0x7f050004;
-        public static final int latitude=0x7f050008;
-        public static final int longitude=0x7f050009;
-        public static final int name=0x7f050007;
+        public static final int latitude=0x7f05000b;
+        public static final int longitude=0x7f05000c;
+        public static final int name=0x7f05000a;
         public static final int notable_places=0x7f050000;
+        public static final int place_edit_buttons=0x7f050007;
         public static final int place_list=0x7f050006;
-        public static final int revert=0x7f05000c;
-        public static final int ringer_mode=0x7f05000a;
+        public static final int revert=0x7f050009;
+        public static final int ringer_mode=0x7f05000d;
         public static final int shutdown=0x7f050002;
         public static final int startup=0x7f050001;
     }

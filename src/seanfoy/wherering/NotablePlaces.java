@@ -78,6 +78,7 @@ public class NotablePlaces extends Activity {
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
                     TextView result = (TextView)super.getView(position, convertView, parent);
+                    result.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 24);
                     result.setText(getItem(position).name);
                     result.getLayoutParams().width = ViewGroup.LayoutParams.FILL_PARENT;
                     return result;
