@@ -46,7 +46,9 @@ public final class R {
         public static final int latitude=0x7f04000a;
         public static final int longitude=0x7f04000b;
         public static final int name=0x7f040009;
+        public static final int no_location_available=0x7f040010;
         public static final int notable_places=0x7f040003;
+        public static final int place_edit_here=0x7f04000f;
         public static final int preview_alert=0x7f040005;
         public static final int revert=0x7f04000e;
         public static final int ringer_mode=0x7f04000c;
