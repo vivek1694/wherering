@@ -122,7 +122,7 @@ public class Place {
         int homeRing = AudioManager.RINGER_MODE_NORMAL;
         int parkRing = AudioManager.RINGER_MODE_VIBRATE;
         Location l = new Location("whatever");
-        l.setAccuracy(WRBroadcastReceiver.radiusM);
+        l.setAccuracy(WRService.radiusM);
         // 1805 Park
         l.setLatitude(38.629205);
         l.setLongitude(-90.226615);

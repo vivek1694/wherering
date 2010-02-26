@@ -18,13 +18,15 @@
             android:label="WhereRing">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="seanfoy.wherering.intent.action.STARTUP" />
-                <action android:name="seanfoy.wherering.intent.action.SHUTDOWN" />
-                <action android:name="seanfoy.wherering.intent.action.PROXIMITY" />
                 <action android:name="seanfoy.wherering.intent.action.ALERT" />
-                <action android:name="seanfoy.wherering.intent.action.SUBSCRIBE" />
             </intent-filter>
         </receiver>
+        <service android:name="WRService" android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="seanfoy.wherering.intent.action.PROXIMITY" />
+                <action android:name="seanfoy.wherering.intent.action.SUBSCRIBE" />
+            </intent-filter>
+        </service>
     </application>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />

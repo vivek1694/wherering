@@ -33,14 +33,18 @@ public class Control extends Activity {
                 });
         findViewById(R.id.startup).
             setOnClickListener(
-                new BroadcastingClickListener(
-                    appCtx,
-                    fullname(seanfoy.wherering.intent.action.STARTUP)));
-        findViewById(R.id.shutdown).
+                new OnClickListener() {
+                    public void onClick(View v) {
+                        appCtx.startService(new Intent(appCtx, WRService.class));
+                    }
+                });
+       findViewById(R.id.shutdown).
             setOnClickListener(
-                new BroadcastingClickListener(
-                    appCtx,
-                    fullname(seanfoy.wherering.intent.action.SHUTDOWN)));
+                new OnClickListener() {
+                    public void onClick(View v) {
+                        appCtx.stopService(new Intent(appCtx, WRService.class));
+                    }
+                });
         TextView lastLocation = (TextView)findViewById(R.id.lastLocation);
         lastLocation.setOnClickListener(
             new OnClickListener() {
@@ -72,7 +76,7 @@ public class Control extends Activity {
     
     private void updateLastLocation(TextView txt) {
         Context ctx = getApplicationContext();
-        LocationManager lm = WRBroadcastReceiver.getSystemService(ctx, Context.LOCATION_SERVICE);
+        LocationManager lm = WRService.getSystemService(ctx, Context.LOCATION_SERVICE);
         Criteria c = new Criteria();
         c.setAccuracy(Criteria.ACCURACY_FINE);
         String p = lm.getBestProvider(c, true);
