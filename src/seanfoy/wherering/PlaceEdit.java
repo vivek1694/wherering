@@ -202,7 +202,14 @@ public class PlaceEdit extends Activity {
                             Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    Place here = asPlace();
+                    Place here = null;
+                    try {
+                        here = asPlace();
+                    }
+                    catch (IllegalStateException e) {
+                        // not a place
+                        here = new Place(new Location("whatever"), RingerMode.normal, "");
+                    }
                     here.location.set(l);
                     fillData(here);
                     return;
