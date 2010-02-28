@@ -46,8 +46,9 @@ public class PlaceEdit extends Activity {
                         try {
                             PlaceEdit.this.setResult(RESULT_OK);
                             Place old = getOriginalPlace();
-                            if (old != null) old.delete(db);
-                            asPlace().upsert(db);
+                            Place nouveau = asPlace();
+                            nouveau.upsert(db);
+                            if (old != null && !old.equals(nouveau)) old.delete(db);
                             PlaceEdit.this.finish();
                         }
                         catch (IllegalStateException e) {
