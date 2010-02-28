@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.media.AudioManager;
@@ -48,17 +49,22 @@ public class Place {
     
     public static Place fetch(DBAdapter adapter, final Location key) {
         Place template = new Place(key, RingerMode.normal, "");
-        return
-            adapter.withCursor(
-                TABLE_NAME,
-                columnList,
-                DBAdapter.makeWhereClause(template.getValueEquality()),
-                new Func1<Cursor, Place>() {
-                    public Place f(Cursor c) {
-                        c.moveToFirst();
-                        return retrieve(c);
-                    }
-                });
+        try {
+            return
+                adapter.withCursor(
+                    TABLE_NAME,
+                    columnList,
+                    DBAdapter.makeWhereClause(template.getValueEquality()),
+                    new Func1<Cursor, Place>() {
+                        public Place f(Cursor c) {
+                            c.moveToFirst();
+                            return retrieve(c);
+                        }
+                    });
+        }
+        catch (CursorIndexOutOfBoundsException e) {
+            return null;
+        }
     }
     
     public static Cursor fetchPlaces(DBAdapter adapter) {
