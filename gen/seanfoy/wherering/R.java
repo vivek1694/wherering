@@ -43,6 +43,7 @@ public final class R {
         public static final int app_name=0x7f040000;
         public static final int done=0x7f04000d;
         public static final int initd=0x7f040008;
+        public static final int last_location=0x7f040011;
         public static final int latitude=0x7f04000a;
         public static final int longitude=0x7f04000b;
         public static final int name=0x7f040009;

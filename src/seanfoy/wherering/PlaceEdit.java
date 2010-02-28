@@ -194,6 +194,7 @@ public class PlaceEdit extends Activity {
                     ctx = params[0];
                     return LocationGetter.get(PlaceEdit.this, 512);
                 }
+                @Override
                 protected void onPostExecute(Location l) {
                     if (l == null) {
                         Toast.makeText(
@@ -259,6 +260,7 @@ public class PlaceEdit extends Activity {
                     e);
         }
     }
+    @SuppressWarnings("unchecked")
     private <T> T findTypedViewById(int id) {
         return (T)findViewById(id);
     }

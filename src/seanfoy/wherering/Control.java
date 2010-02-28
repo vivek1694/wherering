@@ -81,7 +81,7 @@ public class Control extends Activity {
         c.setAccuracy(Criteria.ACCURACY_FINE);
         String p = lm.getBestProvider(c, true);
         Location l = lm.getLastKnownLocation(p);
-        txt.setText(String.format("you are at %s", l));
+        txt.setText(String.format(getString(R.string.last_location), l));
     }
     
     private static class BroadcastingClickListener implements OnClickListener {
