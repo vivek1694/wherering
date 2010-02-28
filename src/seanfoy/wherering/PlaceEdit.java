@@ -1,8 +1,5 @@
 package seanfoy.wherering;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
 import seanfoy.wherering.Place.RingerMode;
 import android.app.Activity;
 import android.content.Context;
@@ -11,9 +8,11 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -132,7 +131,6 @@ public class PlaceEdit extends Activity {
         
         public void onLocationChanged(Location location) {
             l = location;
-            Looper.myLooper().quit();
         }
 
         public void onProviderDisabled(String provider) {}
@@ -143,36 +141,29 @@ public class PlaceEdit extends Activity {
                 Bundle extras) {}
         
         private static Location get(final Context ctx, final long timeout) {
+            Looper.prepare();
+            final Handler handler = new Handler();
             LocationManager lm = WRService.getSystemService(ctx, Context.LOCATION_SERVICE);
             Criteria c = new Criteria();
             c.setAccuracy(Criteria.ACCURACY_FINE);
             String p = lm.getBestProvider(c, true);
             final LocationGetter getter = new LocationGetter();
-            Looper.prepare();
             try {
                 lm.requestLocationUpdates(
                     p,
                     0,
                     0,
                     getter);
-                final Looper myLooper = Looper.myLooper();
-                Executors.newSingleThreadScheduledExecutor().schedule(
+                Log.i("hungry", "Heart");
+                handler.postDelayed(
                     new Runnable() {
                         public void run() {
-                            try {
-                                myLooper.quit();
-                            }
-                            catch (RuntimeException e) {
-                                if (getter.l == null) {
-                                    throw e;
-                                }
-                                //expected: the looper shut down when we got the location.
-                            }
+                            handler.getLooper().quit();
                         }
                     },
-                    timeout,
-                    TimeUnit.MILLISECONDS);
+                    timeout);
                 Looper.loop();
+                Log.i("bruce", "springsteen");
             }
             finally {
                 lm.removeUpdates(getter);
@@ -186,36 +177,35 @@ public class PlaceEdit extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean result = super.onOptionsItemSelected(item);
         if (item.getItemId() == R.string.place_edit_here) {
-            new AsyncTask<Context, Void, Location>() {
-                private Context ctx;
-                
+            final Handler ui = new Handler();
+            new HandlerThread("whereami") {
                 @Override
-                protected Location doInBackground(Context... params) {
-                    ctx = params[0];
-                    return LocationGetter.get(PlaceEdit.this, 512);
+                public void run() {
+                    final Location l = LocationGetter.get(PlaceEdit.this, 512);
+                    ui.post(
+                        new Runnable() {
+                            public void run() {
+                                if (l == null) {
+                                    Toast.makeText(
+                                        PlaceEdit.this,
+                                        R.string.no_location_available,
+                                        Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                Place here = null;
+                                try {
+                                    here = asPlace();
+                                }
+                                catch (IllegalStateException e) {
+                                    // not a place
+                                    here = new Place(new Location("whatever"), RingerMode.normal, "");
+                                }
+                                here.location.set(l);
+                                fillData(here);
+                            }
+                        });
                 }
-                @Override
-                protected void onPostExecute(Location l) {
-                    if (l == null) {
-                        Toast.makeText(
-                            ctx,
-                            R.string.no_location_available,
-                            Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    Place here = null;
-                    try {
-                        here = asPlace();
-                    }
-                    catch (IllegalStateException e) {
-                        // not a place
-                        here = new Place(new Location("whatever"), RingerMode.normal, "");
-                    }
-                    here.location.set(l);
-                    fillData(here);
-                    return;
-                }
-            }.execute(this);
+            }.start();
 
             return true;
         }
