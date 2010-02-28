@@ -238,7 +238,18 @@ public class PlaceEdit extends Activity {
         }
         catch (NumberFormatException e) {
             String message = String.format("%s is not a coordinate", txt);
-            text.setError(message);
+            //TODO: setError is a nice idea but we need to do it
+            // conditionally on the user providing input. If we're
+            // calling this from a context in which we use a place
+            // when one is available and otherwise proceed with
+            // a default, we could trigger this setError at a time
+            // when the user wouldn't expect that. Worse, we might
+            // then change the state of the coordinate control by
+            // means other than the typing events that would clear
+            // this message. Then we'd complain about a condition
+            // the user didn't cause and which has been remedied
+            // or at least altered by our code.
+            //text.setError(message);
             throw
                 new IllegalStateException(
                     message,
