@@ -68,8 +68,7 @@
         overwrite="true" />
     <setup />
 
-
-    <target name="-use-aspectj" depends="-release-check" unless="if-release-t-nil">
+    <target name="-use-aspectj" if="if-aspects-t-nil">
       <path id="aspectj.antlibs">
         <pathelement path="${aspectj.ant.dir}/aspectjtools.jar" />
       </path>
@@ -77,7 +76,7 @@
           classpathref="aspectj.antlibs"
           resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties" />
     </target>
-    <target name="-compile-aspectj" depends="android_rules.compile" unless="if-release-t-nil"
+    <target name="-compile-aspectj" depends="android_rules.compile" if="if-aspects-t-nil"
                 description="Compiles project's .java files into .class files">
         <!-- If android rules are used for a test project, its classpath should include
              tested project's location -->
@@ -89,54 +88,67 @@
                 destdir="${out.classes.absolute.dir}"
                 bootclasspathref="android.target.classpath"
                 verbose="${verbose}" classpath="${extensible.classpath}">
-            <sourceRoots>
+            <srcdir>
               <pathelement location="${source.absolute.dir}" />
               <pathelement location="${gen.absolute.dir}" />
-            </sourceRoots>
+            </srcdir>
             <classpath>
                 <fileset dir="${external.libs.absolute.dir}" includes="*.jar" />
             </classpath>
+            <exclude name="**/Logging.aj" if="if-release-t-nil" />
         </iajc>
     </target>
-    <target name="-compile-javac" depends="android_rules.compile" if="if-release-t-nil">
+    <target name="-compile-javac" depends="android_rules.compile" if="if-aspects-t-nil">
     </target>
     <target name="compile" depends="-compile-aspectj, -compile-javac" />
 
     <target name="-set-release-config">
+      <!-- set properties given that the release target
+           has been specified -->
       <property name="config-suffix" value="release" />
       <property name="if-release-t-nil" value="t" />
     </target>
-
-    <target name="configure">
-        <condition property="config-suffix" value="${config-suffix}" else="debug">
-            <isset property="config-suffix" />
-        </condition>
-        <echo message="configure ${config-suffix}" />
-        <copy todir=".">
-            <fileset dir=".">
-                <include name="**/*.${config-suffix}" />
-                <exclude name=".hg/**" />
-            </fileset>
-            <mapper type="glob" from="*.${config-suffix}" to="*" />
-        </copy>
-        <copy todir=".">
-            <fileset dir="configurable-res">
-                <include name="**/*.xml" />
-            </fileset>
-            <mapper type="glob" from="*" to="res/*" />
-        </copy>
-        <condition property="debuggable" value="false" else="true">
-          <matches string="${config-suffix}" pattern="release" />
-        </condition>
-        <copy
-            file="AndroidManifest.xml.tmpl"
-            tofile="AndroidManifest.xml"
-            overwrite="true">
-          <filterset>
-            <filter token="debuggable" value="${debuggable}" />
-          </filterset>
-        </copy>
+    <target name="-set-debug-config">
+      <!-- set properties given that the debug target
+           has been specified -->
+      <property name="if-aspects-t-nil" value="t" />
     </target>
+
+    <target name="configure" description="change the working copy to match debug/release expectations depending on your use of those targets or settings of various properties">
+      <!-- replace files by suffixes -->
+      <condition property="config-suffix" value="${config-suffix}" else="debug">
+        <isset property="config-suffix" />
+      </condition>
+      <echo message="configure ${config-suffix}" />
+      <copy todir=".">
+        <fileset dir=".">
+          <include name="**/*.${config-suffix}" />
+          <exclude name=".hg/**" />
+        </fileset>
+        <mapper type="glob" from="*.${config-suffix}" to="*" />
+      </copy>
+      <copy todir=".">
+        <fileset dir="configurable-res">
+          <include name="**/*.xml" />
+        </fileset>
+        <mapper type="glob" from="*" to="res/*" />
+      </copy>
+      <!-- minor surgery (last resort) -->
+      <condition property="debuggable" value="false" else="true">
+        <matches string="${config-suffix}" pattern="release" />
+      </condition>
+      <copy
+          file="AndroidManifest.xml.tmpl"
+          tofile="AndroidManifest.xml"
+          overwrite="true">
+        <filterset>
+          <filter token="debuggable" value="${debuggable}" />
+        </filterset>
+      </copy>
+    </target>
+
     <target name="-resource-src" depends="android_rules.-dirs, configure, -use-aspectj, android_rules.-resource-src" />
+
+    <target name="debug" depends="-set-debug-config,android_rules.debug" />
     <target name="release" depends="-set-release-config,android_rules.release" />
 </project>
