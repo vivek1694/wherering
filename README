@@ -1,0 +1,21 @@
+This is WhereRing.
+
+To build with ant:
+$ ant debug
+or
+$ ant release
+
+To build with Eclipse:
+$ ant configure
+and then use Eclipse in the usual way.
+
+If you have trouble with ant:
+---
+build.xml:49: taskdef class com.android.ant.SetupTask cannot be found
+---
+the problem is that ant needs a hint about where to find your Android SDK:
+$ cp local.properties.tmpl local.properties
+$ emacs local.properties
+(customize to taste)
+
+AndroidManifest.xml is prepared by ant from the AndroidManifest.xml.tmpl file. This allows us to enable/disable debugging and do other routine customizations without polluting source control history or inconveniencing programmers too much.
