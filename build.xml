@@ -68,9 +68,48 @@
         overwrite="true" />
     <setup />
 
-    <target name="configure" depends="-release-check">
-        <condition property="config-suffix" value="release" else="debug">
-            <isset property="release.sign" />
+
+    <target name="-use-aspectj" depends="-release-check" unless="if-release-t-nil">
+      <path id="aspectj.antlibs">
+        <pathelement path="${aspectj.ant.dir}/aspectjtools.jar" />
+      </path>
+      <taskdef
+          classpathref="aspectj.antlibs"
+          resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties" />
+    </target>
+    <target name="-compile-aspectj" depends="android_rules.compile" unless="if-release-t-nil"
+                description="Compiles project's .java files into .class files">
+        <!-- If android rules are used for a test project, its classpath should include
+             tested project's location -->
+        <condition property="extensible.classpath"
+                           value="${tested.project.absolute.dir}/bin/classes" else=".">
+            <isset property="tested.project.absolute.dir" />
+        </condition>
+        <iajc encoding="ascii" target="1.5" source="1.5" debug="true" extdirs=""
+                destdir="${out.classes.absolute.dir}"
+                bootclasspathref="android.target.classpath"
+                verbose="${verbose}" classpath="${extensible.classpath}">
+            <sourceRoots>
+              <pathelement location="${source.absolute.dir}" />
+              <pathelement location="${gen.absolute.dir}" />
+            </sourceRoots>
+            <classpath>
+                <fileset dir="${external.libs.absolute.dir}" includes="*.jar" />
+            </classpath>
+        </iajc>
+    </target>
+    <target name="-compile-javac" depends="android_rules.compile" if="if-release-t-nil">
+    </target>
+    <target name="compile" depends="-compile-aspectj, -compile-javac" />
+
+    <target name="-set-release-config">
+      <property name="config-suffix" value="release" />
+      <property name="if-release-t-nil" value="t" />
+    </target>
+
+    <target name="configure">
+        <condition property="config-suffix" value="${config-suffix}" else="debug">
+            <isset property="config-suffix" />
         </condition>
         <echo message="configure ${config-suffix}" />
         <copy todir=".">
@@ -98,6 +137,6 @@
           </filterset>
         </copy>
     </target>
-    <target name="-resource-src" depends="android_rules.-dirs, configure, android_rules.-resource-src">
-    </target>
+    <target name="-resource-src" depends="android_rules.-dirs, configure, -use-aspectj, android_rules.-resource-src" />
+    <target name="release" depends="-set-release-config,android_rules.release" />
 </project>
