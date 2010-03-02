@@ -16,6 +16,8 @@ $ ant release
 
 To build with Eclipse:
 $ ant configure
+or
+$ ant -Dif-release-t-nil=t configure
 and then use Eclipse in the usual way.
 
 If you have trouble with ant:
