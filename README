@@ -7,6 +7,8 @@ earlier versions might work.
 
 AspectJ dependencies are included with distributions of this program, but we assume that you've already installed ant-contrib.
 
+Actually, you may be able to get away without ant-contrib for debug builds. We started using it just for version numbering, which doesn't matter for debugging.
+
 To build with ant:
 $ ant debug
 or
