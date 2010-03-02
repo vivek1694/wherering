@@ -114,9 +114,9 @@
       <property name="if-aspects-t-nil" value="t" />
     </target>
 
-    <target name="apply-version" description="set Android version metadata to match hg metadata">
-    <taskdef resource="net/sf/antcontrib/antcontrib.properties" />
-    <taskdef resource="net/sf/antcontrib/antlib.xml" />
+    <target name="determine-version" description="set Android version metadata to match hg metadata" if="if-release-t-nil">
+      <taskdef resource="net/sf/antcontrib/antcontrib.properties" />
+      <taskdef resource="net/sf/antcontrib/antlib.xml" />
       <!-- see http://seanfoy.blogspot.com/2009/10/version-numbers-and-dvcs.html
            for rationale -->
       <!-- In a nutshell:
@@ -167,16 +167,15 @@
           </exec>
         </then>
       </if>
-      <condition property="version-code" value="${hg.revnum}" else="0">
+      <condition property="version-idiosyncratic" value="0" else="1">
         <and>
           <equals arg1="" arg2="${hg.dirty}" />
           <isset property="hg.available-remotely" />
         </and>
       </condition>
-      <echo message="version-code: ${version-code}" />
     </target>
 
-    <target name="configure" description="change the working copy to match debug/release expectations depending on your use of those targets or settings of various properties">
+    <target name="configure" description="change the working copy to match debug/release expectations depending on your use of those targets or settings of various properties" depends="determine-version">
       <!-- replace files by suffixes -->
       <condition property="config-suffix" value="${config-suffix}" else="debug">
         <isset property="config-suffix" />
@@ -199,12 +198,24 @@
       <condition property="debuggable" value="false" else="true">
         <matches string="${config-suffix}" pattern="release" />
       </condition>
+      <condition property="version-code" value="${hg.revnum}" else="0">
+        <isset property="hg.revnum" />
+      </condition>
+      <condition property="version-name-minor" value="${hg.revnum}" else="0">
+        <isset property="hg.revnum" />
+      </condition>
+      <condition property="version-name-point" value="${version-idiosyncratic}" else="0">
+        <isset property="hg.version-idiosyncratic" />
+      </condition>
       <copy
           file="AndroidManifest.xml.tmpl"
           tofile="AndroidManifest.xml"
           overwrite="true">
         <filterset>
           <filter token="debuggable" value="${debuggable}" />
+          <filter token="version-code" value="${version-code}" />
+          <filter token="version-name-minor" value="${version-name-minor}" />
+          <filter token="version-name-point" value="${version-name-point}" />
         </filterset>
       </copy>
     </target>
