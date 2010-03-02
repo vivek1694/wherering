@@ -27,7 +27,7 @@ public aspect Architecture {
     declare warning :
         within(seanfoy..*) &&
         within(android.os.AsyncTask+) &&
-        call(* android.os.Looper.*(..)) :
+        call(* android.os.Looper+.*(..)) :
             // http://groups.google.com/group/android-developers/browse_thread/thread/8fd0b86f1dd310b8/3917193dbc42c494?hl=en&lnk=gst&q=looper+inside+an+asynctask#3917193dbc42c494
             "Looper expects to to own the thread that you associate it with, while AsyncTask owns the thread it creates for you to run in thebackground. They thus conflict with each other, and can't be used together. Consider using seanfoy.AsyncLooperTask instead.";
 }

@@ -17,6 +17,7 @@
  */
 package seanfoy;
 
+import org.aspectj.lang.annotation.SuppressAjWarnings;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -50,12 +51,20 @@ public aspect Logging {
 			}
 		}
 	}
+	
+	//the method spec for call identifies all methods defined
+	// on all subtypes of Looper. The warning reminds us that
+	// this does not include methods defined on strict
+	// supertypes of Looper such as toString, even when these
+	// methods are invoked on Looper instances. No worries,
+	// I meant what I wrote.
+	@SuppressAjWarnings("unmatchedSuperTypeInCall")
 	pointcut dynamicLooperInAsyncTask() :
 	    within(seanfoy..*) &&
         (
                 cflow(execution(* android.os.AsyncTask+.doInBackground(..))) ||
                 cflow(execution(* android.os.AsyncTask+.publishProgress(..)))) &&
-	    target(android.os.Looper) &&
+	    call(* android.os.Looper+.*(..)) &&
 	    !within(Logging);
 	before() : dynamicLooperInAsyncTask() {
         // http://groups.google.com/group/android-developers/browse_thread/thread/8fd0b86f1dd310b8/3917193dbc42c494?hl=en&lnk=gst&q=looper+inside+an+asynctask#3917193dbc42c494
