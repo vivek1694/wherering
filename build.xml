@@ -114,6 +114,68 @@
       <property name="if-aspects-t-nil" value="t" />
     </target>
 
+    <target name="apply-version" description="set Android version metadata to match hg metadata">
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties" />
+    <taskdef resource="net/sf/antcontrib/antlib.xml" />
+      <!-- see http://seanfoy.blogspot.com/2009/10/version-numbers-and-dvcs.html
+           for rationale -->
+      <!-- In a nutshell:
+           determine the hg id of this wc, the dirty bit for this wc,
+           and the default path for this wc. Determine whether this
+           hg id is available from the upstream repo. Use the local
+           revision number for the Android version number when this
+           changeset is available from the default path and this
+           wc is clean. As long as we build from repos that are never
+           committed to but only cloned/pulled from the canonical
+           repo, this scheme provides a consistent version numbering
+           for all observers. -->
+      <exec executable="hg" searchpath="true" outputproperty="hg.localstatus">
+        <arg line="--debug id --num --id" />
+      </exec>
+      <exec executable="hg" searchpath="true" outputproperty="hg.paths">
+        <arg line="paths" />
+      </exec>
+      <property name="hg.localstatus.pattern" value="([0-9a-f]+)(\+?)\s+([0-9a-f]+)" />
+      <property name="hg.paths.pattern" value="^default\s+=\s+(.+)" />
+      <propertyregex
+          property="hg.revid"
+          input="${hg.localstatus}"
+          regexp="${hg.localstatus.pattern}"
+          select="\1" />
+      <propertyregex
+          property="hg.dirty"
+          input="${hg.localstatus}"
+          regexp="${hg.localstatus.pattern}"
+          select="\2" />
+      <propertyregex
+          property="hg.revnum"
+          input="${hg.localstatus}"
+          regexp="${hg.localstatus.pattern}"
+          select="\3" />
+      <propertyregex
+          property="hg.upstream"
+          input="${hg.paths}"
+          regexp="${hg.paths.pattern}"
+          select="\1" />
+      <echo message="${hg.localstatus}" />
+      <echo message="(:hg.revid ${hg.revid} :hg.dirty ${hg.dirty} :hg.revnum ${hg.revnum} :hg.upstream ${hg.upstream})" />
+      <if>
+        <isset property="hg.upstream" />
+        <then>
+          <exec executable="hg" searchpath="true" failonerror="false" resultproperty="hg.available-remotely">
+            <arg line="id --rev ${hg.revid} ${hg.upstream}" />
+          </exec>
+        </then>
+      </if>
+      <condition property="version-code" value="${hg.revnum}" else="0">
+        <and>
+          <equals arg1="" arg2="${hg.dirty}" />
+          <isset property="hg.available-remotely" />
+        </and>
+      </condition>
+      <echo message="version-code: ${version-code}" />
+    </target>
+
     <target name="configure" description="change the working copy to match debug/release expectations depending on your use of those targets or settings of various properties">
       <!-- replace files by suffixes -->
       <condition property="config-suffix" value="${config-suffix}" else="debug">

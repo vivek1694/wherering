@@ -1,5 +1,12 @@
 This is WhereRing.
 
+Prerequisites:
+  Ant-Contrib 1.3b http://ant-contrib.sourceforge.net/
+  AspectJ 1.6.8    http://www.eclipse.org/aspectj/
+earlier versions might work.
+
+AspectJ dependencies are included with distributions of this program, but we assume that you've already installed ant-contrib.
+
 To build with ant:
 $ ant debug
 or
