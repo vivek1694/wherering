@@ -167,7 +167,7 @@
           </exec>
         </then>
       </if>
-      <condition property="version-idiosyncratic" value="0" else="1">
+      <condition property="hg.version-idiosyncratic" value="0" else="1">
         <and>
           <equals arg1="" arg2="${hg.dirty}" />
           <isset property="hg.available-remotely" />
@@ -204,7 +204,7 @@
       <condition property="version-name-minor" value="${hg.revnum}" else="0">
         <isset property="hg.revnum" />
       </condition>
-      <condition property="version-name-point" value="${version-idiosyncratic}" else="0">
+      <condition property="version-name-point" value="${hg.version-idiosyncratic}" else="0">
         <isset property="hg.version-idiosyncratic" />
       </condition>
       <copy
