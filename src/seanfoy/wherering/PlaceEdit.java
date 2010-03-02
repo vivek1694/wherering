@@ -122,16 +122,19 @@ public class PlaceEdit extends Activity {
     }
     private void fillData(Place p) {
         EditText nom = findTypedViewById(R.id.name);
-        EditText lat = findTypedViewById(R.id.latitude);
-        EditText lng = findTypedViewById(R.id.longitude);
         Spinner rm = findTypedViewById(R.id.ringer_mode);
-        lat.setText(Double.toString(p.location.getLatitude()));
-        lng.setText(Double.toString(p.location.getLongitude()));
+        fillDataLocation(p.location);
         rm.setSelection(
             positionFor(
                 rm,
                 p.ringerMode));
         nom.setText(p.name);
+    }
+    private void fillDataLocation(Location location) {
+        EditText lat = findTypedViewById(R.id.latitude);
+        EditText lng = findTypedViewById(R.id.longitude);
+        lat.setText(Double.toString(location.getLatitude()));
+        lng.setText(Double.toString(location.getLongitude()));
     }
     
     @Override
@@ -208,16 +211,7 @@ public class PlaceEdit extends Activity {
                             Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    Place here = null;
-                    try {
-                        here = asPlace();
-                    }
-                    catch (IllegalStateException e) {
-                        // not a place
-                        here = new Place(new Location("whatever"), RingerMode.normal, "");
-                    }
-                    here.location.set(l);
-                    fillData(here);
+                    PlaceEdit.this.fillDataLocation(l);
                 }
             }.execute(PlaceEdit.this);
 
