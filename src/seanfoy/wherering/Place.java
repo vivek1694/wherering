@@ -144,26 +144,6 @@ public class Place {
                     " ringer_mode integer," +
                     " constraint %s_PK primary key (latitude, longitude))",
                     TABLE_NAME, TABLE_NAME));
-        int homeRing = AudioManager.RINGER_MODE_NORMAL;
-        int parkRing = AudioManager.RINGER_MODE_VIBRATE;
-        Location l = new Location("whatever");
-        l.setAccuracy(WRService.radiusM);
-        // 1805 Park
-        l.setLatitude(38.629205);
-        l.setLongitude(-90.226615);
-        createPlace(db, l, parkRing, "Park Avenue");
-        l = new Location(l);
-        // 2050 Lafayette
-        l.setLatitude(38.616951);
-        l.setLongitude(-90.21152);
-        createPlace(db, l, homeRing, "Lafayette Avenue");
-    }
-    
-    private static Place createPlace(SQLiteDatabase db, final Location l, final int ringerMode, final String name) {
-        Place result = new Place(l, RingerMode.fromInt(ringerMode), name);
-        ContentValues initialValues = result.makeContentValues();
-        db.insert(TABLE_NAME, null, initialValues);
-        return result;
     }
 
     public static void teardownDDL(SQLiteDatabase db) {
