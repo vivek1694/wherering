@@ -21,6 +21,8 @@ package seanfoy.wherering;
 
 import seanfoy.AsyncLooperTask;
 import seanfoy.wherering.Place.RingerMode;
+import seanfoy.wherering.intent.action;
+import static seanfoy.wherering.intent.IntentHelpers.fullname;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -69,6 +71,7 @@ public class PlaceEdit extends Activity {
                             Place nouveau = asPlace();
                             nouveau.upsert(db);
                             if (old != null && !old.equals(nouveau)) old.delete(db);
+                            PlaceEdit.this.startService(new Intent(fullname(action.SIGHUP)));
                             PlaceEdit.this.finish();
                         }
                         catch (IllegalStateException e) {

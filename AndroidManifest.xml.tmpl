@@ -25,7 +25,11 @@
         <service android:name="WRService" android:label="@string/app_name">
             <intent-filter>
                 <action android:name="seanfoy.wherering.intent.action.PROXIMITY" />
+                <data android:scheme="wherering" />
+            </intent-filter>
+            <intent-filter>
                 <action android:name="seanfoy.wherering.intent.action.SUBSCRIBE" />
+                <action android:name="seanfoy.wherering.intent.action.SIGHUP" />
             </intent-filter>
         </service>
     </application>

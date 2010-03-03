@@ -37,5 +37,10 @@ public enum action {
 	 * alerts according to the user's
 	 * notable places configuration
 	 */
-	SUBSCRIBE
+	SUBSCRIBE,
+	/**
+	 * Re-subscribe only if the WhereRing
+	 * service is already active.
+	 */
+	SIGHUP
 }

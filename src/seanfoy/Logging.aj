@@ -18,6 +18,7 @@
 package seanfoy;
 
 import org.aspectj.lang.annotation.SuppressAjWarnings;
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -51,6 +52,19 @@ public aspect Logging {
 				    String.format("%s: %s", k, b.get(k).toString()));
 			}
 		}
+	}
+	
+	before(int localRingMode) :
+	    call(* WRService.updateRing(Context, boolean, int)) &&
+	    args(Context, boolean, localRingMode) {
+	    Log.i(thisJoinPoint.toString(), "localRingMode:" + localRingMode);
+	}
+	
+	pointcut ServiceStart(Service service, Intent intent) :
+	    this(service) && execution(* onStartCommand(Intent, int, int)) && args(intent, int, int);
+	
+	before(Service service, Intent intent) : ServiceStart(service, intent) {
+	    Log.i(thisJoinPoint.toString(), intent.toString());
 	}
 	
 	//the method spec for call identifies all methods defined

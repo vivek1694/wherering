@@ -37,6 +37,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -62,6 +63,14 @@ public class WRService extends Service {
         LocationManager lm = getSystemService(ctx, Context.LOCATION_SERVICE);
         for (Map.Entry<Integer, Place> c : config.entrySet()) {
             Intent i = new Intent(fullname(action.PROXIMITY));
+            //PI equality doesn't consider extras, so we obtain
+            // independent PIs by supplying different URIs
+            i.setData(
+                Uri.parse(
+                    String.format(
+                        "wherering://seanfoy.wherering/places/%s/%s",
+                        c.getValue().hashCode(),
+                        c.getValue().ringerMode)));
             i.putExtra(rmKeyName, c.getValue().ringerMode.ringer_mode);
             PendingIntent pi =
                 PendingIntent.getService(
@@ -131,6 +140,13 @@ public class WRService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+    }
+    
+    public boolean isRunning() {
+        return alarmSubs.size() > 0;
+    }
+    public synchronized void startup() {
+        if (isRunning()) return;
         
         Context context = getApplicationContext();
         // If this app is uninstalled, its
@@ -162,6 +178,7 @@ public class WRService extends Service {
         int result = START_STICKY;
         String intentAction = intent.getAction();
         if (intentAction == null) {
+            startup();
             return result;
         }
         if (intentAction.equals(fullname(action.PROXIMITY))) {
@@ -169,6 +186,9 @@ public class WRService extends Service {
         }
         else if (intentAction.equals(fullname(action.SUBSCRIBE))) {
             renew();
+        }
+        else if (intentAction.equals(fullname(action.SIGHUP))) {
+            if (isRunning()) renew();
         }
         return result;
     }
