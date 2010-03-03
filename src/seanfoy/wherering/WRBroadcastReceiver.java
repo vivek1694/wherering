@@ -89,14 +89,21 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
             return result;
         }
         public static String describe(Context ctx, Bundle b) {
-            String event =
-                String.format(
-                    ctx.getString(b.getBoolean(ENTERING.toString()) ? R.string.entering : R.string.leaving),
-                    b.getString(PLACE_NAME.toString()));
-            String outcome =
-                String.format(
-                    ctx.getString(b.getBoolean(UPDATED.toString()) ? R.string.change : R.string.nochange),
-                    RingerMode.fromInt(b.getInt(NEW_RINGER_MODE.toString())));
+            String event, outcome;
+            try {
+                event =
+                    String.format(
+                        ctx.getString(b.getBoolean(ENTERING.toString()) ? R.string.entering : R.string.leaving),
+                        b.getString(PLACE_NAME.toString()));
+                outcome =
+                    String.format(
+                        ctx.getString(b.getBoolean(UPDATED.toString()) ? R.string.change : R.string.nochange),
+                        RingerMode.fromInt(b.getInt(NEW_RINGER_MODE.toString())));
+            }
+            catch (NullPointerException e) {
+                event = ctx.getString(R.string.name);
+                outcome = ctx.getString(R.string.ringer_mode);
+            }
             return
                 String.format(
                     ctx.getString(R.string.alert_text),
