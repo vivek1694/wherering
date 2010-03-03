@@ -59,7 +59,6 @@ public class WRService extends Service {
     }
     
     public void subscribe(Context ctx, HashMap<Integer, Place> config) {
-        Log.i(getClass().getName(), String.format("System.currentTimeMillis() = %s", System.currentTimeMillis()));
         LocationManager lm = getSystemService(ctx, Context.LOCATION_SERVICE);
         for (Map.Entry<Integer, Place> c : config.entrySet()) {
             Intent i = new Intent(fullname(action.PROXIMITY));

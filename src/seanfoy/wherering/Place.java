@@ -82,7 +82,6 @@ public class Place {
                     });
         }
         catch (CursorIndexOutOfBoundsException e) {
-            android.util.Log.i("don't understand", DBAdapter.makeWhereClause(template.getValueEquality()));
             return null;
         }
     }
