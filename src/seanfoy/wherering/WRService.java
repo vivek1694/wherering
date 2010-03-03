@@ -37,9 +37,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.media.AudioManager;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
-import android.util.Log;
 
 /**
  * Subscribe and periodically renew
@@ -62,7 +62,7 @@ public class WRService extends Service {
         LocationManager lm = getSystemService(ctx, Context.LOCATION_SERVICE);
         for (Map.Entry<Integer, Place> c : config.entrySet()) {
             Intent i = new Intent(fullname(action.PROXIMITY));
-            i.putExtra(placeKeyName, c.getKey());
+            i.putExtra(rmKeyName, c.getValue().ringerMode.ringer_mode);
             PendingIntent pi =
                 PendingIntent.getService(
                     ctx,
@@ -92,9 +92,15 @@ public class WRService extends Service {
     }
 
     public void updateRing(Context ctx, Intent intent) {
-        int localRingMode = getConfig(ctx).get(intent.getExtras().getInt(placeKeyName)).ringerMode.ringer_mode;
+        Bundle extras = intent.getExtras();
+        boolean entering = extras.getBoolean(LocationManager.KEY_PROXIMITY_ENTERING);
+        int localRM = extras.getInt(rmKeyName);
+        updateRing(ctx, entering, localRM);
+    }
+
+    public void updateRing(Context ctx, boolean entering, int localRingMode) {
         AudioManager am = getSystemService(ctx, Context.AUDIO_SERVICE);
-        if (intent.getExtras().getBoolean(LocationManager.KEY_PROXIMITY_ENTERING)) {
+        if (entering) {
             previous_ringer_mode = am.getRingerMode();
             am.setRingerMode(localRingMode);
         }
@@ -188,7 +194,7 @@ public class WRService extends Service {
         AlarmManager.INTERVAL_FIFTEEN_MINUTES;
     private final static Set<PendingIntent> lmsubs =
         Collections.synchronizedSet(new HashSet<PendingIntent>());
-    private static final String placeKeyName = WRBroadcastReceiver.class.getName() + ":place-key";
+    private static final String rmKeyName = WRBroadcastReceiver.class.getName() + ":rm-key";
     private int previous_ringer_mode = AudioManager.RINGER_MODE_NORMAL;
     static final int radiusM = 25;
     
