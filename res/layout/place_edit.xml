@@ -59,7 +59,7 @@
             android:id="@+id/ringer_mode"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="@string/ringer_mode" />
+            android:prompt="@string/ringer_mode" />
       </LinearLayout>
   </ScrollView>
 </RelativeLayout>

@@ -50,7 +50,8 @@ public class PlaceEdit extends Activity {
         
         Spinner rm = (Spinner)findViewById(R.id.ringer_mode);
         ArrayAdapter<RingerMode> ringers =
-            new ArrayAdapter<RingerMode>(getApplicationContext(), R.layout.list_item);
+            new ArrayAdapter<RingerMode>(getApplicationContext(), android.R.layout.simple_spinner_item);
+        ringers.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         for (RingerMode m : RingerMode.values()) {
             ringers.add(m);
         }
