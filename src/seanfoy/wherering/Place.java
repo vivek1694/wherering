@@ -48,8 +48,8 @@ public class Place {
     
     private static Place retrieve(final Cursor c) {
         Location l = new Location("whatever");
-        l.setLatitude(c.getDouble(c.getColumnIndex("latitude")));
-        l.setLongitude(c.getDouble(c.getColumnIndex("longitude")));
+        l.setLatitude(Location.convert(c.getString(c.getColumnIndex("latitude"))));
+        l.setLongitude(Location.convert(c.getString(c.getColumnIndex("longitude"))));
         Place result =
             new Place(
                 l,
@@ -82,6 +82,7 @@ public class Place {
                     });
         }
         catch (CursorIndexOutOfBoundsException e) {
+            android.util.Log.i("don't understand", DBAdapter.makeWhereClause(template.getValueEquality()));
             return null;
         }
     }
@@ -127,8 +128,8 @@ public class Place {
 
     private ContentValues makeContentValues() {
         ContentValues initialValues = new ContentValues();
-        initialValues.put("latitude", location.getLatitude());
-        initialValues.put("longitude", location.getLongitude());
+        initialValues.put("latitude", Location.convert(location.getLatitude(), Location.FORMAT_SECONDS));
+        initialValues.put("longitude", Location.convert(location.getLongitude(), Location.FORMAT_SECONDS));
         initialValues.put("name", name);
         initialValues.put("ringer_mode", ringerMode.ringer_mode);
         return initialValues;
@@ -138,8 +139,8 @@ public class Place {
         db.execSQL(
                 String.format(
                     "create table %s (" +
-                    " latitude double precision," +
-                    " longitude double precision," +
+                    " latitude text," +
+                    " longitude text," +
                     " name text," +
                     " ringer_mode integer," +
                     " constraint %s_PK primary key (latitude, longitude))",
@@ -161,8 +162,8 @@ public class Place {
     
     private Map<String, Object> getValueEquality() {
         HashMap<String, Object> ve = new HashMap<String, Object>();
-        ve.put("latitude", location.getLatitude());
-        ve.put("longitude", location.getLongitude());
+        ve.put("latitude", Location.convert(location.getLatitude(), Location.FORMAT_SECONDS));
+        ve.put("longitude", Location.convert(location.getLongitude(), Location.FORMAT_SECONDS));
         return ve;
     }
     private static Func1<Place, Map<String, ?>> getVE =
