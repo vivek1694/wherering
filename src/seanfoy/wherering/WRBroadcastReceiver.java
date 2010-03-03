@@ -21,6 +21,7 @@ package seanfoy.wherering;
 
 import static seanfoy.wherering.intent.IntentHelpers.fullname;
 
+import seanfoy.wherering.Place.RingerMode;
 import seanfoy.wherering.intent.action;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -29,13 +30,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 
 public class WRBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String intentAction = intent.getAction();
         if (intentAction.equals(fullname(action.ALERT))) {
-            raiseAlert(context);
+            raiseAlert(context, intent);
         }
         else if (intentAction.equals(android.content.Intent.ACTION_BOOT_COMPLETED)) {
             if (!getPrefs(context).getBoolean(android.content.Intent.ACTION_BOOT_COMPLETED, true)) {
@@ -45,10 +47,10 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
         }
     }
     
-    private void raiseAlert(Context context) {
+    private void raiseAlert(Context context, Intent intent) {
             String app_name = context.getString(R.string.app_name);
             String app_ticker = context.getString(R.string.alert_ticker);
-            String alert_text = context.getString(R.string.alert_text);
+            String alert_text = AlertExtras.describe(context, intent.getExtras());
             NotificationManager nm =
                 (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
             Notification note =
@@ -70,5 +72,36 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
         return ctx.getSharedPreferences(
                 ctx.getApplicationInfo().name,
                 Context.MODE_PRIVATE);
+    }
+
+    public enum AlertExtras {
+        PLACE_NAME,
+        ENTERING,
+        UPDATED,
+        NEW_RINGER_MODE;
+        
+        public static Bundle asBundle(String placeName, boolean entering, boolean updated, int newRingerMode) {
+            Bundle result = new Bundle();
+            result.putString(PLACE_NAME.toString(), placeName);
+            result.putBoolean(ENTERING.toString(), entering);
+            result.putBoolean(UPDATED.toString(), updated);
+            result.putInt(NEW_RINGER_MODE.toString(), newRingerMode);
+            return result;
+        }
+        public static String describe(Context ctx, Bundle b) {
+            String event =
+                String.format(
+                    ctx.getString(b.getBoolean(ENTERING.toString()) ? R.string.entering : R.string.leaving),
+                    b.getString(PLACE_NAME.toString()));
+            String outcome =
+                String.format(
+                    ctx.getString(b.getBoolean(UPDATED.toString()) ? R.string.change : R.string.nochange),
+                    RingerMode.fromInt(b.getInt(NEW_RINGER_MODE.toString())));
+            return
+                String.format(
+                    ctx.getString(R.string.alert_text),
+                    event,
+                    outcome);
+        }
     }
 }

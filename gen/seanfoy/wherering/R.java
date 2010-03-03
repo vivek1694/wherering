@@ -37,23 +37,27 @@ public final class R {
         public static final int place_edit=0x7f030004;
     }
     public static final class string {
-        public static final int add_place=0x7f040004;
-        public static final int alert_text=0x7f040002;
+        public static final int add_place=0x7f040003;
+        public static final int alert_text=0x7f040015;
         public static final int alert_ticker=0x7f040001;
         public static final int app_name=0x7f040000;
-        public static final int done=0x7f04000d;
-        public static final int initd=0x7f040008;
-        public static final int last_location=0x7f040011;
-        public static final int latitude=0x7f04000a;
-        public static final int longitude=0x7f04000b;
-        public static final int name=0x7f040009;
-        public static final int no_location_available=0x7f040010;
-        public static final int notable_places=0x7f040003;
-        public static final int place_edit_here=0x7f04000f;
-        public static final int preview_alert=0x7f040005;
-        public static final int revert=0x7f04000e;
-        public static final int ringer_mode=0x7f04000c;
-        public static final int shutdown=0x7f040007;
-        public static final int startup=0x7f040006;
+        public static final int change=0x7f040013;
+        public static final int done=0x7f04000c;
+        public static final int entering=0x7f040011;
+        public static final int initd=0x7f040007;
+        public static final int last_location=0x7f040010;
+        public static final int latitude=0x7f040009;
+        public static final int leaving=0x7f040012;
+        public static final int longitude=0x7f04000a;
+        public static final int name=0x7f040008;
+        public static final int no_location_available=0x7f04000f;
+        public static final int nochange=0x7f040014;
+        public static final int notable_places=0x7f040002;
+        public static final int place_edit_here=0x7f04000e;
+        public static final int preview_alert=0x7f040004;
+        public static final int revert=0x7f04000d;
+        public static final int ringer_mode=0x7f04000b;
+        public static final int shutdown=0x7f040006;
+        public static final int startup=0x7f040005;
     }
 }

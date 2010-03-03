@@ -47,9 +47,10 @@ public aspect Logging {
 		Bundle b = intent.getExtras();
 		if (b != null) {
 			for (String k : b.keySet()) {
+			    Object v = b.get(k);
 				Log.i(
 				    tag,
-				    String.format("%s: %s", k, b.get(k).toString()));
+				    String.format("%s: %s", k, v == null ? "(null)" : v.toString()));
 			}
 		}
 	}

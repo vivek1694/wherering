@@ -29,6 +29,7 @@ import java.util.Set;
 
 import seanfoy.Greenspun.Func1;
 import seanfoy.wherering.intent.action;
+import seanfoy.wherering.WRBroadcastReceiver.AlertExtras;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -49,8 +50,9 @@ import android.os.SystemClock;
 public class WRService extends Service {
     public void proximate(Intent intent) {
         Context context = getApplicationContext();
-        updateRing(context, intent);
-        context.sendBroadcast(new Intent(fullname(action.ALERT)));
+        Intent alert = new Intent(fullname(action.ALERT));
+        alert.putExtras(updateRing(context, intent));
+        context.sendBroadcast(alert);
     }
     
     public void renew() {
@@ -65,13 +67,15 @@ public class WRService extends Service {
             Intent i = new Intent(fullname(action.PROXIMITY));
             //PI equality doesn't consider extras, so we obtain
             // independent PIs by supplying different URIs
+            Place p = c.getValue();
             i.setData(
                 Uri.parse(
                     String.format(
                         "wherering://seanfoy.wherering/places/%s/%s",
-                        c.getValue().hashCode(),
-                        c.getValue().ringerMode)));
-            i.putExtra(rmKeyName, c.getValue().ringerMode.ringer_mode);
+                        p.hashCode(),
+                        p.ringerMode)));
+            i.putExtra(rmKeyName, p.ringerMode.ringer_mode);
+            i.putExtra(placenameKeyName, p.name);
             PendingIntent pi =
                 PendingIntent.getService(
                     ctx,
@@ -81,8 +85,8 @@ public class WRService extends Service {
                     0);
             lmsubs.add(pi);
             lm.addProximityAlert(
-                c.getValue().location.getLatitude(),
-                c.getValue().location.getLongitude(),
+                p.location.getLatitude(),
+                p.location.getLongitude(),
                 radiusM,
                 System.currentTimeMillis() + LM_EXPIRY,
                 pi);
@@ -100,28 +104,31 @@ public class WRService extends Service {
         }
     }
 
-    public void updateRing(Context ctx, Intent intent) {
+    public Bundle updateRing(Context ctx, Intent intent) {
         Bundle extras = intent.getExtras();
+        String placename = extras.getString(placenameKeyName);
         boolean entering = extras.getBoolean(LocationManager.KEY_PROXIMITY_ENTERING);
         int localRM = extras.getInt(rmKeyName);
-        updateRing(ctx, entering, localRM);
+        return updateRing(ctx, placename, entering, localRM);
     }
 
-    public void updateRing(Context ctx, boolean entering, int localRingMode) {
+    public Bundle updateRing(Context ctx, String placename, boolean entering, int localRingMode) {
         AudioManager am = getSystemService(ctx, Context.AUDIO_SERVICE);
         if (entering) {
             previous_ringer_mode = am.getRingerMode();
             am.setRingerMode(localRingMode);
+            return AlertExtras.asBundle(placename, entering, true, localRingMode);
         }
         else {
             // leave the ringer as we found it
             // (unless the user has changed it meanwhile)
             if (am.getRingerMode() == localRingMode) {
                 am.setRingerMode(previous_ringer_mode);
+                return AlertExtras.asBundle(placename, entering, true, previous_ringer_mode);
             }
         }
+        return AlertExtras.asBundle(placename, entering, false, am.getRingerMode());
     }
-
     private final static HashMap<Integer, Place> getConfig(Context ctx) {
         final HashMap<Integer, Place> config = new HashMap<Integer, Place>();
         DBAdapter.withDBAdapter(
@@ -214,6 +221,7 @@ public class WRService extends Service {
         AlarmManager.INTERVAL_FIFTEEN_MINUTES;
     private final static Set<PendingIntent> lmsubs =
         Collections.synchronizedSet(new HashSet<PendingIntent>());
+    private static final String placenameKeyName = WRBroadcastReceiver.class.getName() + ":placename-key";
     private static final String rmKeyName = WRBroadcastReceiver.class.getName() + ":rm-key";
     private int previous_ringer_mode = AudioManager.RINGER_MODE_NORMAL;
     static final int radiusM = 25;
