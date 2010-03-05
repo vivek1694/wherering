@@ -1,6 +1,7 @@
 This is WhereRing: Location-aware ringer adjustments for Android.
 
-Prerequisites:
+Prerequisites
+---
   Ant-Contrib 1.3b http://ant-contrib.sourceforge.net/
   AspectJ 1.6.8    http://www.eclipse.org/aspectj/
 earlier versions might work.
