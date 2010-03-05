@@ -27,7 +27,10 @@ import android.content.SharedPreferences;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
@@ -101,6 +104,34 @@ public class Control extends Activity {
         String p = lm.getBestProvider(c, true);
         Location l = lm.getLastKnownLocation(p);
         txt.setText(String.format(getString(R.string.last_location), l));
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	super.onCreateOptionsMenu(menu);
+    	menu.add(0, R.string.known_issues, 0, getString(R.string.known_issues));
+    	menu.add(0, R.string.suggestion_box, 0, getString(R.string.suggestion_box));
+    	return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	if (super.onOptionsItemSelected(item)) return true;
+    	if (item.getItemId() == R.string.suggestion_box) {
+        	startActivity(
+                new Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("http://code.google.com/p/wherering/issues/entry?template=Defect%20report%20from%20user")));
+        	return true;
+    	}
+    	else if (item.getItemId() == R.string.known_issues) {
+    	    startActivity(
+    	        new Intent(
+    	            Intent.ACTION_VIEW,
+    	            Uri.parse("http://code.google.com/p/wherering/issues")));
+    	    return true;
+    	}
+        return false;
     }
     
     private static class BroadcastingClickListener implements OnClickListener {
