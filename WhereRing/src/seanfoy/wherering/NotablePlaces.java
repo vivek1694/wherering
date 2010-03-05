@@ -70,20 +70,7 @@ public class NotablePlaces extends Activity {
     }
     
     public void editPlace(Place place) {
-        Intent edit =
-            new Intent(
-                    android.content.Intent.ACTION_EDIT,
-                    null,
-                    getApplicationContext(),
-                    PlaceEdit.class);
-        if (place != null) {
-            edit.putExtra(
-                getString(R.string.latitude),
-                place.location.getLatitude());
-            edit.putExtra(
-                getString(R.string.longitude),
-                place.location.getLongitude());
-        }
+        Intent edit = PlaceEdit.intentToEdit(getApplicationContext(), place);
         startActivityForResult(
             edit,
             PLACE_EDIT);

@@ -124,7 +124,7 @@ public class PlaceEdit extends Activity {
         if (p == null) return;
         fillData(p);
     }
-    private void fillData(Place p) {
+    public void fillData(Place p) {
         EditText nom = findTypedViewById(R.id.name);
         Spinner rm = findTypedViewById(R.id.ringer_mode);
         fillDataLocation(p.location);
@@ -235,7 +235,7 @@ public class PlaceEdit extends Activity {
                 String.format("no such item %s", x));
     }
     
-    private Place asPlace() {
+    public Place asPlace() {
         EditText name = findTypedViewById(R.id.name);
         Location l = new Location("whatever");
         l.setLatitude(extractCoordinate(R.id.latitude));
@@ -273,6 +273,25 @@ public class PlaceEdit extends Activity {
                     e);
         }
     }
+
+    public static Intent intentToEdit(Context context, Place place) {
+        Intent edit =
+            new Intent(
+                    android.content.Intent.ACTION_EDIT,
+                    null,
+                    context,
+                    PlaceEdit.class);
+        if (place != null) {
+            edit.putExtra(
+                context.getString(R.string.latitude),
+                place.location.getLatitude());
+            edit.putExtra(
+                context.getString(R.string.longitude),
+                place.location.getLongitude());
+        }
+        return edit;
+    }
+
     @SuppressWarnings("unchecked")
     private <T> T findTypedViewById(int id) {
         return (T)findViewById(id);

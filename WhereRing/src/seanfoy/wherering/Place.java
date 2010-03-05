@@ -153,7 +153,7 @@ public class Place {
                         TABLE_NAME));
     }
     
-    private static final String TABLE_NAME = "Places";
+    public static final String TABLE_NAME = "Places";
     
     public final Location location;
     public RingerMode ringerMode;
