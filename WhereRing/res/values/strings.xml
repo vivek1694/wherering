@@ -22,4 +22,6 @@
     <string name="change">new ringer mode %s</string>
     <string name="nochange">no change from ringer mode %s</string>
     <string name="alert_text">%s (%s)</string>
+    <string name="suggestion_box">suggestion box</string>
+    <string name="known_issues">known issues</string>
 </resources>
