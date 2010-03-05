@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WhereRing</string>
+    <string name="alert_ticker">@string/app_name</string>
+    <string name="notable_places">notable places</string>
+    <string name="add_place">add place</string>
+    <string name="preview_alert">preview alert</string>
+    <string name="startup">startup</string>
+    <string name="shutdown">shutdown</string>
+    <string name="initd">run at startup</string>
+    <string name="name">name</string>
+    <string name="latitude">latitude</string>
+    <string name="longitude">longitude</string>
+    <string name="ringer_mode">ringer mode</string>
+    <string name="done">done</string>
+    <string name="revert">revert</string>
+    <string name="place_edit_here">use current location</string>
+    <string name="no_location_available">Your location is unknown.</string>
+    <string name="last_location">Last known location: %s</string>
+    <string name="entering">entering %s</string>
+    <string name="leaving">leaving %s</string>
+    <string name="change">new ringer mode %s</string>
+    <string name="nochange">no change from ringer mode %s</string>
+    <string name="alert_text">%s (%s)</string>
+</resources>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="seanfoy.wherering"
+    android:versionCode="@version-code@"
+    android:versionName="1.@version-name-minor@.@version-name-point@">
+    <application android:icon="@drawable/icon"
+        android:debuggable="@debuggable@"
+        android:label="@string/app_name">
+        <activity android:name=".Control" android:label="WhereRing Control">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".NotablePlaces" android:label="Places">
+        </activity>
+        <activity android:name=".PlaceEdit" android:label="Edit Place" />
+        <receiver android:name=".WRBroadcastReceiver"
+            android:label="WhereRing">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="seanfoy.wherering.intent.action.ALERT" />
+            </intent-filter>
+        </receiver>
+        <service android:name="WRService" android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="seanfoy.wherering.intent.action.PROXIMITY" />
+                <data android:scheme="wherering" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="seanfoy.wherering.intent.action.SUBSCRIBE" />
+                <action android:name="seanfoy.wherering.intent.action.SIGHUP" />
+            </intent-filter>
+        </service>
+    </application>
+    <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-sdk android:minSdkVersion="5" />
+</manifest>

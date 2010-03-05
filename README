@@ -1,0 +1,46 @@
+This is WhereRing: Location-aware ringer adjustments for Android.
+
+Prerequisites:
+  Ant-Contrib 1.3b http://ant-contrib.sourceforge.net/
+  AspectJ 1.6.8    http://www.eclipse.org/aspectj/
+earlier versions might work.
+
+AspectJ dependencies are included with distributions of this program, but we assume that you've already installed ant-contrib.
+
+Actually, you may be able to get away without ant-contrib for debug builds. We started using it just for version numbering, which doesn't matter for debugging.
+
+
+This top-level directory contains two projects
+
+WhereRing (Android application)
+---
+To build with ant:
+$ ant debug
+or
+$ ant release
+
+To build with Eclipse:
+$ ant configure
+or
+$ ant -Dconfig-suffix=release -Dif-release-t-nil=t configure
+and then use Eclipse in the usual way.
+
+If you have trouble with ant:
+---
+build.xml:49: taskdef class com.android.ant.SetupTask cannot be found
+---
+the problem is that ant needs a hint about where to find your Android SDK:
+$ cp local.properties.tmpl local.properties
+$ emacs local.properties
+(customize to taste)
+
+AndroidManifest.xml is prepared by ant from the AndroidManifest.xml.tmpl file. This allows us to enable/disable debugging and do other routine customizations without polluting source control history or inconveniencing programmers too much.
+
+
+WhereRingTest (Android/JUnit tests)
+---
+To build with ant:
+$ ant debug
+
+To build with Eclipse:
+(no preparation is needed)

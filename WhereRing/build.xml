@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="WhereRing" default="help">
+
+    <!-- The local.properties file is created and updated by the 'android' tool.
+         It contains the path to the SDK. It should *NOT* be checked in in Version
+         Control Systems. -->
+    <property file="local.properties" />
+
+    <!-- The build.properties file can be created by you and is never touched
+         by the 'android' tool. This is the place to change some of the default property values
+         used by the Ant rules.
+         Here are some properties you may want to change/update:
+
+         application.package
+             the name of your application package as defined in the manifest. Used by the
+             'uninstall' rule.
+         source.dir
+             the name of the source directory. Default is 'src'.
+         out.dir
+             the name of the output directory. Default is 'bin'.
+
+         Properties related to the SDK location or the project target should be updated
+          using the 'android' tool with the 'update' action.
+
+         This file is an integral part of the build system for your application and
+         should be checked in in Version Control Systems.
+
+         -->
+    <property file="build.properties" />
+
+    <!-- The default.properties file is created and updated by the 'android' tool, as well
+         as ADT.
+         This file is an integral part of the build system for your application and
+         should be checked in in Version Control Systems. -->
+    <property file="default.properties" />
+
+    <!-- Custom Android task to deal with the project target, and import the proper rules.
+         This requires ant 1.6.0 or above. -->
+    <path id="android.antlibs">
+        <pathelement path="${sdk.dir}/tools/lib/anttasks.jar" />
+        <pathelement path="${sdk.dir}/tools/lib/sdklib.jar" />
+        <pathelement path="${sdk.dir}/tools/lib/androidprefs.jar" />
+        <pathelement path="${sdk.dir}/tools/lib/apkbuilder.jar" />
+        <pathelement path="${sdk.dir}/tools/lib/jarutils.jar" />
+    </path>
+
+    <taskdef name="setup"
+        classname="com.android.ant.SetupTask"
+        classpathref="android.antlibs" />
+
+    <!-- Execute the Android Setup task that will setup some properties specific to the target,
+         and import the build rules files.
+
+         The rules file is imported from
+            <SDK>/platforms/<target_platform>/templates/android_rules.xml
+
+         To customize some build steps for your project:
+         - copy the content of the main node <project> from android_rules.xml
+         - paste it in this build.xml below the <setup /> task.
+         - disable the import by changing the setup task below to <setup import="false" />
+
+         This will ensure that the properties are setup correctly but that your customized
+         build steps are used.
+    -->
+    <copy 
+        file="AndroidManifest.xml.tmpl"
+        tofile="AndroidManifest.xml"
+        overwrite="true" />
+    <setup />
+
+    <target name="-use-aspectj" if="if-aspects-t-nil">
+      <path id="aspectj.antlibs">
+        <pathelement path="${aspectj.ant.dir}/aspectjtools.jar" />
+      </path>
+      <taskdef
+          classpathref="aspectj.antlibs"
+          resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties" />
+    </target>
+    <target name="-compile-aspectj" depends="android_rules.compile" if="if-aspects-t-nil"
+                description="Compiles project's .java files into .class files">
+        <!-- If android rules are used for a test project, its classpath should include
+             tested project's location -->
+        <condition property="extensible.classpath"
+                           value="${tested.project.absolute.dir}/bin/classes" else=".">
+            <isset property="tested.project.absolute.dir" />
+        </condition>
+        <iajc encoding="ascii" target="1.5" source="1.5" debug="true" extdirs=""
+                destdir="${out.classes.absolute.dir}"
+                bootclasspathref="android.target.classpath"
+                verbose="${verbose}" classpath="${extensible.classpath}">
+            <srcdir>
+              <pathelement location="${source.absolute.dir}" />
+              <pathelement location="${gen.absolute.dir}" />
+            </srcdir>
+            <classpath>
+                <fileset dir="${external.libs.absolute.dir}" includes="*.jar" />
+            </classpath>
+            <exclude name="**/Logging.aj" if="if-release-t-nil" />
+        </iajc>
+    </target>
+    <target name="-compile-javac" depends="android_rules.compile" if="if-aspects-t-nil">
+    </target>
+    <target name="compile" depends="-compile-aspectj, -compile-javac" />
+
+    <target name="-set-release-config">
+      <!-- set properties given that the release target
+           has been specified -->
+      <property name="config-suffix" value="release" />
+      <property name="if-release-t-nil" value="t" />
+    </target>
+    <target name="-set-debug-config">
+      <!-- set properties given that the debug target
+           has been specified -->
+      <property name="if-aspects-t-nil" value="t" />
+    </target>
+
+    <target name="determine-version" description="set Android version metadata to match hg metadata" if="if-release-t-nil">
+      <taskdef resource="net/sf/antcontrib/antcontrib.properties" />
+      <taskdef resource="net/sf/antcontrib/antlib.xml" />
+      <!-- see http://seanfoy.blogspot.com/2009/10/version-numbers-and-dvcs.html
+           for rationale -->
+      <!-- In a nutshell:
+           determine the hg id of this wc, the dirty bit for this wc,
+           and the default path for this wc. Determine whether this
+           hg id is available from the upstream repo. Use the local
+           revision number for the Android version number when this
+           changeset is available from the default path and this
+           wc is clean. As long as we build from repos that are never
+           committed to but only cloned/pulled from the canonical
+           repo, this scheme provides a consistent version numbering
+           for all observers. -->
+      <exec executable="hg" searchpath="true" outputproperty="hg.localstatus">
+        <arg line="--debug id --num --id" />
+      </exec>
+      <exec executable="hg" searchpath="true" outputproperty="hg.paths">
+        <arg line="paths" />
+      </exec>
+      <property name="hg.localstatus.pattern" value="([0-9a-f]+)(\+?)\s+([0-9a-f]+)" />
+      <property name="hg.paths.pattern" value="^default\s+=\s+(.+)" />
+      <propertyregex
+          property="hg.revid"
+          input="${hg.localstatus}"
+          regexp="${hg.localstatus.pattern}"
+          select="\1" />
+      <propertyregex
+          property="hg.dirty"
+          input="${hg.localstatus}"
+          regexp="${hg.localstatus.pattern}"
+          select="\2" />
+      <propertyregex
+          property="hg.revnum"
+          input="${hg.localstatus}"
+          regexp="${hg.localstatus.pattern}"
+          select="\3" />
+      <propertyregex
+          property="hg.upstream"
+          input="${hg.paths}"
+          regexp="${hg.paths.pattern}"
+          select="\1" />
+      <echo message="${hg.localstatus}" />
+      <echo message="(:hg.revid ${hg.revid} :hg.dirty ${hg.dirty} :hg.revnum ${hg.revnum} :hg.upstream ${hg.upstream})" />
+      <if>
+        <isset property="hg.upstream" />
+        <then>
+          <exec executable="hg" searchpath="true" failonerror="false" resultproperty="hg.available-remotely">
+            <arg line="id --rev ${hg.revid} ${hg.upstream}" />
+          </exec>
+        </then>
+      </if>
+      <condition property="hg.version-idiosyncratic" value="0" else="1">
+        <and>
+          <equals arg1="" arg2="${hg.dirty}" />
+          <isset property="hg.available-remotely" />
+        </and>
+      </condition>
+    </target>
+
+    <target name="configure" description="change the working copy to match debug/release expectations depending on your use of those targets or settings of various properties" depends="determine-version">
+      <!-- replace files by suffixes -->
+      <condition property="config-suffix" value="${config-suffix}" else="debug">
+        <isset property="config-suffix" />
+      </condition>
+      <echo message="configure ${config-suffix}" />
+      <copy todir=".">
+        <fileset dir=".">
+          <include name="**/*.${config-suffix}" />
+          <exclude name=".hg/**" />
+        </fileset>
+        <mapper type="glob" from="*.${config-suffix}" to="*" />
+      </copy>
+      <copy todir=".">
+        <fileset dir="configurable-res">
+          <include name="**/*.xml" />
+        </fileset>
+        <mapper type="glob" from="*" to="res/*" />
+      </copy>
+      <!-- minor surgery (last resort) -->
+      <condition property="debuggable" value="false" else="true">
+        <matches string="${config-suffix}" pattern="release" />
+      </condition>
+      <condition property="version-code" value="${hg.revnum}" else="0">
+        <isset property="hg.revnum" />
+      </condition>
+      <condition property="version-name-minor" value="${hg.revnum}" else="0">
+        <isset property="hg.revnum" />
+      </condition>
+      <condition property="version-name-point" value="${hg.version-idiosyncratic}" else="0">
+        <isset property="hg.version-idiosyncratic" />
+      </condition>
+      <copy
+          file="AndroidManifest.xml.tmpl"
+          tofile="AndroidManifest.xml"
+          overwrite="true">
+        <filterset>
+          <filter token="debuggable" value="${debuggable}" />
+          <filter token="version-code" value="${version-code}" />
+          <filter token="version-name-minor" value="${version-name-minor}" />
+          <filter token="version-name-point" value="${version-name-point}" />
+        </filterset>
+      </copy>
+    </target>
+
+    <target name="-resource-src" depends="android_rules.-dirs, configure, -use-aspectj, android_rules.-resource-src" />
+
+    <target name="debug" depends="-set-debug-config,android_rules.debug" />
+    <target name="release" depends="-set-release-config,android_rules.release" />
+</project>
