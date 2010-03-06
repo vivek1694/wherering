@@ -107,6 +107,7 @@
            has been specified -->
       <property name="config-suffix" value="release" />
       <property name="if-release-t-nil" value="t" />
+      <property name="if-aspects-t-nil" value="t" />
     </target>
     <target name="-set-debug-config">
       <!-- set properties given that the debug target

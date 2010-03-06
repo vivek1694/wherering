@@ -254,8 +254,15 @@ public class TestPlaceEdit extends ActivityInstrumentationTestCase2<PlaceEdit> {
         return place;
     }
 
-    private int countPlaces(DBAdapter db) {
-        return Greenspun.count(Place.allPlaces(db));
+    private int countPlaces(final DBAdapter db) {
+        return
+            Greenspun.enhtry(
+                Place.allPlaces(db),
+                new Greenspun.Func1<Iterable<Place>, Integer>() {
+                    public Integer f(Iterable<Place> x) {
+                        return Greenspun.count(x);
+                    }
+                });
     }
     
     private LocationManager lm;

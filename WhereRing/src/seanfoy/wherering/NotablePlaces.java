@@ -19,6 +19,7 @@
  */
 package seanfoy.wherering;
 
+import seanfoy.Greenspun;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -79,7 +80,7 @@ public class NotablePlaces extends Activity {
     private void fillData() {
         ListView placeList =
             (ListView)findViewById(R.id.place_list);
-        ArrayAdapter<Place> places =
+        final ArrayAdapter<Place> places =
             new ArrayAdapter<Place>(this, R.layout.list_item) {
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
@@ -90,9 +91,14 @@ public class NotablePlaces extends Activity {
                     return result;
                 }
             };
-        for (Place p : Place.allPlaces(db)) {
-            places.add(p);
-        }
+        Greenspun.enhfor(
+            Place.allPlaces(db),
+            new Greenspun.Func1<Place, Void>() {
+                public Void f(Place p) {
+                    places.add(p);
+                    return null;
+                }
+            });
         placeList.setAdapter(places);
     }
     

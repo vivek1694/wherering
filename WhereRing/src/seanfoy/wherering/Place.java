@@ -29,6 +29,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.media.AudioManager;
 import seanfoy.Greenspun;
+import seanfoy.Greenspun.Disposable;
 import seanfoy.Greenspun.Func1;
 import seanfoy.Greenspun.ROIterator;
 public class Place {
@@ -108,17 +109,9 @@ public class Place {
         return new Iterable<Place>() {
             public Iterator<Place> iterator() {
                 final Cursor c = fetchPlaces(adapter);
-                return new ROIterator<Place>() {
-                    boolean hn = c.moveToFirst();
-                    public boolean hasNext() {
-                        return hn;
-                    }
-
-                    public Place next() {
-                        Place result = retrieve(c);
-                        hn = c.moveToNext();
-                        if (!hn) c.close();
-                        return result;
+                return new CursorIterator<Place>(c) {
+                    public Place extractCurrent(Cursor c) {
+                        return retrieve(c);
                     }
                 };
             }
@@ -198,6 +191,34 @@ public class Place {
                 if (m.ringer_mode == rm) return m;
             }
             throw new IllegalArgumentException();
+        }
+    }
+    
+    abstract static class CursorIterator<T> extends ROIterator<T> implements Disposable<RuntimeException> {
+        Cursor c;
+        public CursorIterator(Cursor c) {
+            this.c = c;
+            hn = c.moveToFirst();
+        }
+        boolean hn;
+        public boolean hasNext() {
+            return hn;
+        }
+        public final T next() {
+            T result = extractCurrent(c);
+            hn = c.moveToNext();
+            //this is not good enough
+            // (no guarantee that clients
+            //  will read to end)
+            //ResourceManagement aspect
+            // provides some syntactic
+            // sugar for that.
+            if (!hn) c.close();
+            return result;
+        }
+        public abstract T extractCurrent(Cursor c);
+        public void close() {
+            if (!c.isClosed()) c.close();
         }
     }
 }

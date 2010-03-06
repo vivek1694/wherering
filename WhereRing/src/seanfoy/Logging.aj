@@ -56,7 +56,7 @@ public aspect Logging {
 	}
 	
 	before(int localRingMode) :
-	    call(* WRService.updateRing(Context, boolean, int)) &&
+	    call(* WRService.updateRing(Context, String, boolean, int)) &&
 	    args(Context, String, boolean, localRingMode) {
 	    Log.i(thisJoinPoint.toString(), "localRingMode:" + localRingMode);
 	}
@@ -74,7 +74,6 @@ public aspect Logging {
 	// supertypes of Looper such as toString, even when these
 	// methods are invoked on Looper instances. No worries,
 	// I meant what I wrote.
-	@SuppressAjWarnings("unmatchedSuperTypeInCall")
 	pointcut dynamicLooperInAsyncTask() :
 	    within(seanfoy..*) &&
         (
@@ -82,9 +81,16 @@ public aspect Logging {
                 cflow(execution(* android.os.AsyncTask+.publishProgress(..)))) &&
 	    call(* android.os.Looper+.*(..)) &&
 	    !within(Logging);
+    @SuppressAjWarnings("unmatchedSuperTypeInCall")
 	before() : dynamicLooperInAsyncTask() {
         // http://groups.google.com/group/android-developers/browse_thread/thread/8fd0b86f1dd310b8/3917193dbc42c494?hl=en&lnk=gst&q=looper+inside+an+asynctask#3917193dbc42c494
 	    String tag = thisJoinPoint.toString();
 	    Log.w(tag, "Looper expects to to own the thread that you associate it with, while AsyncTask owns the thread it creates for you to run in thebackground. They thus conflict with each other, and can't be used together. Consider using seanfoy.AsyncLooperTask instead.");
+	}
+	
+	before() :
+	    cflow(call(* seanfoy.ResourceManagement.cleanup(..))) &&
+	    call(* seanfoy.Greenspun.Disposable.close(..)) {
+	    Log.w(thisJoinPoint.toString(), "cleaning up disposable");
 	}
 }
