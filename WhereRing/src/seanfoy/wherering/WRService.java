@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import seanfoy.Greenspun;
 import seanfoy.Greenspun.Func1;
 import seanfoy.wherering.intent.action;
 import seanfoy.wherering.WRBroadcastReceiver.AlertExtras;
@@ -135,9 +136,14 @@ public class WRService extends Service {
             ctx,
             new Func1<DBAdapter, Void>() {
                 public Void f(DBAdapter adapter) {
-                    for (Place p : Place.allPlaces(adapter)) {
-                        config.put(p.hashCode(), p);
-                    }
+                    Greenspun.enhfor(
+                        Place.allPlaces(adapter),
+                        new Greenspun.Func1<Place, Void>() {
+                            public Void f(Place p) {
+                                config.put(p.hashCode(), p);
+                                return null;
+                            }
+                        });
                     return null;
                 }
             });

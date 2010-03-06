@@ -145,4 +145,57 @@ public final class Greenspun {
 			return Greenspun.toString(this, fGetVE);
 		}
 	}
+	
+    public interface Disposable<T extends Throwable> {
+        public void close() throws T;
+    }
+    public static <R> void dispose(boolean supress, R res) {
+        if (!(res instanceof Disposable<?>)) return;
+        Disposable<?> d = (Disposable<?>)res;
+        try {
+            d.close();
+        }
+        catch (Throwable e) {
+            if (!supress) {
+                if (e instanceof RuntimeException) {
+                    throw (RuntimeException)e;
+                }
+                // :-(
+                throw new RuntimeException(e);
+            }
+            // else let the outer exception propagate
+        }
+    }
+    public static <R, T> T enhtry(R res, Func1<R, T> f) {
+        boolean pass = false;
+        try {
+            T t = f.f(res);
+            pass = true;
+            return t;
+        }
+        finally {
+            dispose(!pass, res);
+        }
+    }
+    private static class EnhforBreakException extends RuntimeException {}
+    public static void enhforbreak() {
+        throw new EnhforBreakException();
+    }
+    public static <T, U> void enhfor(Iterable<T> ts, final Func1<T, Void> f) {
+        enhtry(
+            ts.iterator(),
+            new Func1<Iterator<T>, Void>() {
+                public Void f(Iterator<T> tsi) {
+                    try {
+                        while (tsi.hasNext()) {
+                            f.f(tsi.next());
+                        }
+                    }
+                    catch (EnhforBreakException brk) {
+                        // ignore
+                    }
+                    return null;
+                }
+            });
+    }
 }
