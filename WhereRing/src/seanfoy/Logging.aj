@@ -87,10 +87,10 @@ public aspect Logging {
 	    String tag = thisJoinPoint.toString();
 	    Log.w(tag, "Looper expects to to own the thread that you associate it with, while AsyncTask owns the thread it creates for you to run in thebackground. They thus conflict with each other, and can't be used together. Consider using seanfoy.AsyncLooperTask instead.");
 	}
-	
-	before() :
-	    cflow(call(* seanfoy.ResourceManagement.cleanup(..))) &&
-	    call(* seanfoy.Greenspun.Disposable.close(..)) {
-	    Log.w(thisJoinPoint.toString(), "cleaning up disposable");
-	}
+    
+    before() :
+        cflow(call(* seanfoy.ResourceManagement.cleanup(..))) &&
+        call(* seanfoy.Greenspun.Disposable.close(..)) {
+        Log.w(thisJoinPoint.toString(), "cleaning up disposable");
+    }
 }
