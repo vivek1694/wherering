@@ -1,6 +1,7 @@
 package seanfoy.wherering.test;
 
 import seanfoy.Greenspun;
+import static seanfoy.Greenspun.*;
 import seanfoy.wherering.DBAdapter;
 import seanfoy.wherering.Place;
 import seanfoy.wherering.PlaceEdit;
@@ -275,18 +276,6 @@ public class TestPlaceEdit extends ActivityInstrumentationTestCase2<PlaceEdit> {
     @SuppressWarnings("unused")
     private static <T> T findTypedViewById(View v, int id) {
         return (T)v.findViewById(id);
-    }
-    
-    private void sleep(long millis) {
-        long deadline = System.currentTimeMillis() + millis;
-        while (System.currentTimeMillis() < deadline) {
-            try {
-                Thread.sleep(deadline - System.currentTimeMillis());
-            }
-            catch (InterruptedException e) {
-                // try, try again
-            }
-        }
     }
     
     public class TextChangedCounter implements TextWatcher {

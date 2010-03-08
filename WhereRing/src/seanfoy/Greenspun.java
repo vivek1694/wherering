@@ -198,4 +198,33 @@ public final class Greenspun {
                 }
             });
     }
+    public static <K, V> V setDefault(
+            Map<K, V> dict,
+            K key, V dflt) {
+        if (!dict.containsKey(key)) {
+            dict.put(key, dflt);
+        }
+        return dict.get(key);
+    }
+    public static <K, V> V setDefault(
+            Map<K, V> dict,
+            K key,
+            Func0<V> makeDefault) {        
+        if (!dict.containsKey(key)) {
+            dict.put(key, makeDefault.f());
+        }
+        return dict.get(key);
+    }
+
+    public static void sleep(long millis) {
+        long deadline = System.currentTimeMillis() + millis;
+        while (System.currentTimeMillis() < deadline) {
+            try {
+                Thread.sleep(deadline - System.currentTimeMillis());
+            }
+            catch (InterruptedException e) {
+                // try, try again
+            }
+        }
+    }
 }
