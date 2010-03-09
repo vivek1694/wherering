@@ -48,24 +48,24 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
     }
     
     private void raiseAlert(Context context, Intent intent) {
-            String app_name = context.getString(R.string.app_name);
-            String app_ticker = context.getString(R.string.alert_ticker);
-            String alert_text = AlertExtras.describe(context, intent.getExtras());
-            NotificationManager nm =
-                (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-            Notification note =
-                new Notification(R.drawable.icon, app_ticker, System.currentTimeMillis());
-            note.setLatestEventInfo(
-                    context,
-                    app_name,
-                    alert_text,
-                    PendingIntent.getActivity(
-                            context,
-                            0,
-                            new Intent(context, Control.class),
-                            0));
-            note.flags = note.flags | Notification.FLAG_AUTO_CANCEL;
-            nm.notify(1, note);
+        String app_name = context.getString(R.string.app_name);
+        String app_ticker = context.getString(R.string.alert_ticker);
+        String alert_text = AlertExtras.describe(context, intent.getExtras());
+        NotificationManager nm =
+            (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+        Notification note =
+            new Notification(R.drawable.icon, app_ticker, System.currentTimeMillis());
+        note.setLatestEventInfo(
+                context,
+                app_name,
+                alert_text,
+                PendingIntent.getActivity(
+                        context,
+                        0,
+                        new Intent(context, Control.class),
+                        0));
+        note.flags = note.flags | Notification.FLAG_AUTO_CANCEL;
+        nm.notify(1, note);
     }
 
     static SharedPreferences getPrefs(Context ctx) {
@@ -109,6 +109,10 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
                     ctx.getString(R.string.alert_text),
                     event,
                     outcome);
+        }
+        public static boolean interesting(Bundle b) {
+            String upd = UPDATED.toString();
+            return b.containsKey(upd) && b.getBoolean(upd);
         }
     }
 }
