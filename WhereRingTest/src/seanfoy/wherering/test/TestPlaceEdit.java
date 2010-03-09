@@ -6,15 +6,9 @@ import seanfoy.wherering.DBAdapter;
 import seanfoy.wherering.Place;
 import seanfoy.wherering.PlaceEdit;
 import seanfoy.wherering.R;
-import seanfoy.wherering.Place.RingerMode;
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.location.Criteria;
-import android.location.Location;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
 import android.text.Editable;
@@ -36,17 +30,7 @@ public class TestPlaceEdit extends ActivityInstrumentationTestCase2<PlaceEdit> {
         db.delete(Place.TABLE_NAME, "");
         lm =
             (LocationManager)getInstrumentation().getContext().getSystemService(Context.LOCATION_SERVICE);
-        lm.addTestProvider(
-            testProviderName,
-            "requiresNetwork" == "",
-            "requiresSatellite" == "",
-            "requiresCell" == "",
-            "hasMonetaryCost" == "",
-            "supportsAltitude" == "",
-            "supportsSpeed" == "",
-            "supportsBearing" == "",
-            android.location.Criteria.POWER_LOW,
-            android.location.Criteria.ACCURACY_FINE);
+        LocationHelpers.setupTestProvider(lm);
     }
 
     private DBAdapter db;
@@ -63,7 +47,7 @@ public class TestPlaceEdit extends ActivityInstrumentationTestCase2<PlaceEdit> {
             if (first == null) first = e;
         }
         try {
-            lm.removeTestProvider(testProviderName);            
+            LocationHelpers.teardownTestProvider(lm);            
         }
         catch (Exception e) {
             if (first == null) first = e;
@@ -80,7 +64,7 @@ public class TestPlaceEdit extends ActivityInstrumentationTestCase2<PlaceEdit> {
     @UiThreadTest
     public void testNewPlace() {
         PlaceEdit placeEdit = getActivity();
-        Place place = makePlaceDeLaConcorde();
+        Place place = LocationHelpers.makePlaceDeLaConcorde();
         placeEdit.fillData(place);
 
         Button done = findTypedViewById(placeEdit, R.id.done);
@@ -92,7 +76,7 @@ public class TestPlaceEdit extends ActivityInstrumentationTestCase2<PlaceEdit> {
     public void testRevertNew() {
         PlaceEdit placeEdit = getActivity();
         int expected = countPlaces(db);
-        Place place = makePlaceDeLaConcorde();
+        Place place = LocationHelpers.makePlaceDeLaConcorde();
         placeEdit.fillData(place);
         Button revert = findTypedViewById(placeEdit, R.id.revert);
         revert.performClick();
@@ -168,7 +152,7 @@ public class TestPlaceEdit extends ActivityInstrumentationTestCase2<PlaceEdit> {
     
     private Place makeThenEdit() throws Throwable {
         final Context ctx = getInstrumentation().getTargetContext();
-        final Place place = makePlaceDeLaConcorde();
+        final Place place = LocationHelpers.makePlaceDeLaConcorde();
         place.upsert(db);
         setActivityIntent(PlaceEdit.intentToEdit(ctx, place));
         final PlaceEdit placeEdit = getActivity();
@@ -191,7 +175,11 @@ public class TestPlaceEdit extends ActivityInstrumentationTestCase2<PlaceEdit> {
                     latitude.setText("42");
                 }
             });
-        final Place delaconcorde = teleport();
+        final Place delaconcorde =
+            LocationHelpers.teleport(
+                placeEdit,
+                lm,
+                LocationHelpers.makePlaceDeLaConcorde());
         final TextChangedCounter c = new TextChangedCounter();
         runTestOnUiThread(
             new Runnable() {
@@ -217,42 +205,10 @@ public class TestPlaceEdit extends ActivityInstrumentationTestCase2<PlaceEdit> {
 
     @UiThreadTest
     public void testTransporter() {
-        teleport();
-    }
-
-    private Place teleport() {
-        Place delaconcorde = makePlaceDeLaConcorde();
-        delaconcorde.location.setTime(System.currentTimeMillis());
-        lm.setTestProviderEnabled(testProviderName, true);
-        assertEquals(testProviderName, lm.getBestProvider(new Criteria(), true));
-        PendingIntent pi = PendingIntent.getBroadcast(getActivity(), 0, new Intent(), 0);
-        lm.addProximityAlert(2, 2, 20, 10, pi);
-        try {
-            lm.setTestProviderStatus(testProviderName, LocationProvider.AVAILABLE, null, System.currentTimeMillis());
-            lm.setTestProviderLocation(testProviderName, delaconcorde.location);
-            while (lm.getLastKnownLocation(testProviderName) == null) {
-                sleep(10);
-            }
-        }
-        finally {
-            lm.removeProximityAlert(pi);
-        }
-        Location lastLoc = lm.getLastKnownLocation(testProviderName);
-        double parisLat = delaconcorde.location.getLatitude();
-        double lastLat = lastLoc.getLatitude();
-        assertEquals(parisLat, lastLat);
-        return delaconcorde;
-    }
-
-    private Place makePlaceDeLaConcorde() {
-        Place place =
-            new Place(
-                new Location(testProviderName),
-                RingerMode.normal,
-                "Place de la Concorde");
-        place.location.setLatitude(48.865594443);
-        place.location.setLongitude(2.32071667);
-        return place;
+        LocationHelpers.teleport(
+            getActivity(),
+            lm,
+            LocationHelpers.makePlaceDeLaConcorde());
     }
 
     private int countPlaces(final DBAdapter db) {
@@ -267,7 +223,6 @@ public class TestPlaceEdit extends ActivityInstrumentationTestCase2<PlaceEdit> {
     }
     
     private LocationManager lm;
-    private final String testProviderName = LocationManager.GPS_PROVIDER;
     
     @SuppressWarnings("unchecked")
     private static <T> T findTypedViewById(Activity a, int id) {

@@ -158,6 +158,9 @@ public class WRService extends Service {
     public boolean isRunning() {
         return alarmSubs.size() > 0;
     }
+    public boolean isSubscribed() {
+        return lmsubs.size() > 0;
+    }
     public synchronized void startup() {
         if (isRunning()) return;
         
