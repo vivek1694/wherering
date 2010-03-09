@@ -18,8 +18,10 @@
 package seanfoy;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 public final class Greenspun {
 	public static <T> int hashCode(T t, Func1<T, ? extends Map<String, ?>> f) {
@@ -220,11 +222,52 @@ public final class Greenspun {
         long deadline = System.currentTimeMillis() + millis;
         while (System.currentTimeMillis() < deadline) {
             try {
-                Thread.sleep(deadline - System.currentTimeMillis());
+                Thread.sleep(Math.max(0, deadline - System.currentTimeMillis()));
             }
             catch (InterruptedException e) {
                 // try, try again
             }
         }
+    }
+    
+    public static <T> Iterable<Set<T>> combinations(final int choose, final T... ts) {
+        final int lastFirstElement = ts.length - choose;
+        return new Iterable<Set<T>>() {
+            public Iterator<Set<T>> iterator() {
+                final int pastTheEnd = -1;
+                final int [] cursor = new int[choose];
+                for (int i = 0; i < choose; ++i) {
+                    cursor[i] = i;
+                }
+                return new ROIterator<Set<T>>() {
+                    public boolean hasNext() {
+                        return cursor[0] != pastTheEnd;
+                    }
+                    public Set<T> next() {
+                        Set<T> result = new HashSet<T>();
+                        for (int i = 0; i < choose; ++i) {
+                            result.add(ts[cursor[i]]);
+                        }
+                        advance();
+                        return result;
+                    }
+                    private void advance() {
+                        if (cursor[0] == lastFirstElement) {
+                            cursor[0] = pastTheEnd;
+                            return;
+                        }
+                        for (int i = choose - 1; i >= 0; --i) {
+                            if (cursor[i] < ts.length - 1) {
+                                ++cursor[i];
+                                for (int j = i + 1; j < choose; ++j) {
+                                    cursor[j] = cursor[j - 1] + 1;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                };
+            }
+        };
     }
 }
