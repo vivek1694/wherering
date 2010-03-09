@@ -11,9 +11,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/notable_places" />
-        <Button android:text="@string/startup" android:id="@+id/startup"
+        <Button android:text="@string/activate" android:id="@+id/activate"
             android:layout_width="wrap_content" android:layout_height="wrap_content" />
-        <Button android:text="@string/shutdown" android:id="@+id/shutdown"
+        <Button android:text="@string/deactivate" android:id="@+id/deactivate"
             android:layout_width="wrap_content" android:layout_height="wrap_content" />
         <CheckBox android:id="@+id/initd"
             android:layout_width="wrap_content"
