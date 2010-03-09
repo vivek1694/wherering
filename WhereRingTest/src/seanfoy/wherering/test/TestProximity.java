@@ -160,6 +160,7 @@ public class TestProximity extends ServiceTestCase<WRService> {
     }
     @Override
     public void tearDown() throws Exception {
+        db.close();
         LocationHelpers.teardownTestProvider(getLM(getContext()));
         Context ctx = getContext();
         ctx.stopService(new Intent(ctx, WRService.class));
