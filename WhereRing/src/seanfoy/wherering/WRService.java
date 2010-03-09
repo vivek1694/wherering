@@ -51,9 +51,12 @@ import android.os.SystemClock;
 public class WRService extends Service {
     public void proximate(Intent intent) {
         Context context = getApplicationContext();
-        Intent alert = new Intent(fullname(action.ALERT));
-        alert.putExtras(updateRing(context, intent));
-        context.sendBroadcast(alert);
+        Bundle alertExtras = updateRing(context, intent);
+        if (AlertExtras.interesting(alertExtras)) {
+            Intent alert = new Intent(fullname(action.ALERT));
+            alert.putExtras(alertExtras);
+            context.sendBroadcast(alert);
+        }
     }
     
     public void renew() {
@@ -125,7 +128,7 @@ public class WRService extends Service {
             am.setRingerMode(localRingMode);
             return AlertExtras.asBundle(placename, entering, true, localRingMode);
         }
-        else if (last_known_place_hc == phc) {
+        else if (!entering && last_known_place_hc == phc) {
             last_known_place_hc = 0;
             // leave the ringer as we found it
             // (unless the user has changed it meanwhile)
