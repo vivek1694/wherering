@@ -56,8 +56,8 @@ public aspect Logging {
 	}
 	
 	before(int localRingMode) :
-	    call(* WRService.updateRing(Context, String, boolean, int)) &&
-	    args(Context, String, boolean, localRingMode) {
+	    call(* WRService.updateRing(Context, int, String, boolean, int)) &&
+	    args(Context, int, String, boolean, localRingMode) {
 	    Log.i(thisJoinPoint.toString(), "localRingMode:" + localRingMode);
 	}
 	
