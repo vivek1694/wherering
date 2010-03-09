@@ -30,7 +30,7 @@ public class TestProximity extends ServiceTestCase<WRService> {
     // public void testNoGPSAfterStop() {}
     
     public void testEntry() {
-        double limit = 10000; //ms
+        double limit = 1000; //ms
         Context ctx = getContext();
         
         Place dlc = LocationHelpers.makePlaceDeLaConcorde();
@@ -103,15 +103,25 @@ public class TestProximity extends ServiceTestCase<WRService> {
         // when we transition directly from
         // one place to the next. Assuming
         // the two orderings are equally
-        // likely, this test has a 2^-10
+        // likely, this test has a 2^-n
         // chance of passing in the presence
         // of a bug.
-        for (int i = 0; i < 10; ++i) {
+        final int n = 16;
+        for (int i = 0; i < n; ++i) {
+            android.util.Log.i("here I am", "i = " + i);
             LocationManager lm = getLM(ctx);
-            LocationHelpers.teleport(ctx, lm, newbury);
-            waitForRinger(limit, ctx, newbury);
-            LocationHelpers.teleport(ctx, lm, dlc);
-            waitForRinger(limit, ctx, dlc);
+            if (i % 2 == 0) {
+                LocationHelpers.teleport(ctx, lm, newbury);
+                waitForRinger(limit, ctx, newbury);
+                LocationHelpers.teleport(ctx, lm, dlc);
+                waitForRinger(limit, ctx, dlc);
+            }
+            else {
+                LocationHelpers.teleport(ctx, lm, dlc);
+                waitForRinger(limit, ctx, dlc);
+                LocationHelpers.teleport(ctx, lm, newbury);
+                waitForRinger(limit, ctx, newbury);                
+            }
             LocationHelpers.teleport(ctx, lm, google);
             waitForRinger(limit, ctx, google);
         }

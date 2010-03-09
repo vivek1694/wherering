@@ -77,13 +77,14 @@ public class WRService extends Service {
                         p.ringerMode)));
             i.putExtra(rmKeyName, p.ringerMode.ringer_mode);
             i.putExtra(placenameKeyName, p.name);
+            i.putExtra(placeHCKeyName, p.hashCode());
             PendingIntent pi =
                 PendingIntent.getService(
                     ctx,
                     // docs say "currently not used"
                     0,
                     i,
-                    0);
+                    PendingIntent.FLAG_UPDATE_CURRENT);
             lmsubs.add(pi);
             lm.addProximityAlert(
                 p.location.getLatitude(),
@@ -109,23 +110,31 @@ public class WRService extends Service {
         Bundle extras = intent.getExtras();
         String placename = extras.getString(placenameKeyName);
         boolean entering = extras.getBoolean(LocationManager.KEY_PROXIMITY_ENTERING);
+        int phc = extras.getInt(placeHCKeyName);
         int localRM = extras.getInt(rmKeyName);
-        return updateRing(ctx, placename, entering, localRM);
+        return updateRing(ctx, phc, placename, entering, localRM);
     }
 
-    public Bundle updateRing(Context ctx, String placename, boolean entering, int localRingMode) {
+    public Bundle updateRing(Context ctx, int phc, String placename, boolean entering, int localRingMode) {
         AudioManager am = getSystemService(ctx, Context.AUDIO_SERVICE);
-        if (entering) {
-            previous_ringer_mode = am.getRingerMode();
+        if (entering && last_known_place_hc != phc) {
+            if (last_known_place_hc == 0) {
+                default_ringer_mode = am.getRingerMode();
+            }
+            last_known_place_hc = phc;
             am.setRingerMode(localRingMode);
             return AlertExtras.asBundle(placename, entering, true, localRingMode);
         }
-        else {
+        else if (last_known_place_hc == phc) {
+            last_known_place_hc = 0;
             // leave the ringer as we found it
             // (unless the user has changed it meanwhile)
             if (am.getRingerMode() == localRingMode) {
-                am.setRingerMode(previous_ringer_mode);
-                return AlertExtras.asBundle(placename, entering, true, previous_ringer_mode);
+                am.setRingerMode(default_ringer_mode);
+                return AlertExtras.asBundle(placename, entering, true, default_ringer_mode);
+            }
+            else {
+                default_ringer_mode = am.getRingerMode();
             }
         }
         return AlertExtras.asBundle(placename, entering, false, am.getRingerMode());
@@ -232,7 +241,9 @@ public class WRService extends Service {
         Collections.synchronizedSet(new HashSet<PendingIntent>());
     private static final String placenameKeyName = WRBroadcastReceiver.class.getName() + ":placename-key";
     private static final String rmKeyName = WRBroadcastReceiver.class.getName() + ":rm-key";
-    private int previous_ringer_mode = AudioManager.RINGER_MODE_NORMAL;
+    private static final String placeHCKeyName = WRBroadcastReceiver.class.getName() + ":lkphc-key";
+    private int default_ringer_mode = AudioManager.RINGER_MODE_NORMAL;
+    private int last_known_place_hc = 0;
     static final int radiusM = 25;
     
     @SuppressWarnings("unchecked")
