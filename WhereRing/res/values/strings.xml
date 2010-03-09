@@ -5,9 +5,9 @@
     <string name="notable_places">notable places</string>
     <string name="add_place">add place</string>
     <string name="preview_alert">preview alert</string>
-    <string name="startup">startup</string>
-    <string name="shutdown">shutdown</string>
-    <string name="initd">run at startup</string>
+    <string name="activate">activate</string>
+    <string name="deactivate">deactivate</string>
+    <string name="initd">activate at Android startup</string>
     <string name="name">name</string>
     <string name="latitude">latitude</string>
     <string name="longitude">longitude</string>

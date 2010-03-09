@@ -53,14 +53,14 @@ public class Control extends Activity {
                             new Intent(Control.this, NotablePlaces.class));
                     }
                 });
-        findViewById(R.id.startup).
+        findViewById(R.id.activate).
             setOnClickListener(
                 new OnClickListener() {
                     public void onClick(View v) {
                         appCtx.startService(new Intent(appCtx, WRService.class));
                     }
                 });
-       findViewById(R.id.shutdown).
+       findViewById(R.id.deactivate).
             setOnClickListener(
                 new OnClickListener() {
                     public void onClick(View v) {
