@@ -26,13 +26,17 @@ import static seanfoy.wherering.intent.IntentHelpers.fullname;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -149,62 +153,53 @@ public class PlaceEdit extends Activity {
             R.string.place_edit_here,
             android.view.Menu.NONE,
             R.string.place_edit_here);
+        if (existsIntentActivity(showOnMap())) {
+            menu.add(
+                android.view.Menu.NONE,
+                R.string.show_on_map,
+                android.view.Menu.NONE,
+                R.string.show_on_map);
+        }
         return true;
     }
     
-    private static class LocationGetter implements LocationListener {
-        public volatile Location l;
-        
-        public void onLocationChanged(Location location) {
-            l = location;
-        }
-
-        public void onProviderDisabled(String provider) {}
-
-        public void onProviderEnabled(String provider) {}
-
-        public void onStatusChanged(String provider, int status,
-                Bundle extras) {}
-        
-        private static Location get(final Context ctx, final long timeout) {
-            Looper.prepare();
-            final Handler handler = new Handler();
-            LocationManager lm = WRService.getSystemService(ctx, Context.LOCATION_SERVICE);
-            Criteria c = new Criteria();
-            c.setAccuracy(Criteria.ACCURACY_FINE);
-            String p = lm.getBestProvider(c, true);
-            final LocationGetter getter = new LocationGetter();
-            try {
-                lm.requestLocationUpdates(
-                    p,
-                    0,
-                    0,
-                    getter);
-                handler.postDelayed(
-                    new Runnable() {
-                        public void run() {
-                            handler.getLooper().quit();
-                        }
-                    },
-                    timeout);
-                Looper.loop();
-            }
-            finally {
-                lm.removeUpdates(getter);
-            }
-            
-            return lm.getLastKnownLocation(p);
-        }
+    private boolean existsIntentActivity(Intent i) {
+        return
+            getPackageManager().
+            queryIntentActivities(
+                showOnMap(),
+                PackageManager.MATCH_DEFAULT_ONLY).size() > 0;
+    }
+    
+    private Intent showOnMap() {
+        Place p = asPlace();
+        Intent showOnMap = new Intent(Intent.ACTION_VIEW);
+        showOnMap.setData(
+            Uri.parse(
+                String.format(
+                    "geo:%s,%s",
+                    p.location.getLatitude(),
+                    p.location.getLongitude())));
+        return showOnMap;
     }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean result = super.onOptionsItemSelected(item);
-        if (item.getItemId() == R.string.place_edit_here) {
+        if (item.getItemId() == R.string.show_on_map) {
+            try {                
+                startActivity(showOnMap());
+                return true;
+            }
+            catch (IllegalStateException e) {
+                return false;
+            }
+        }
+        else if (item.getItemId() == R.string.place_edit_here) {
             new AsyncLooperTask<PlaceEdit, Void, Location>() {
                 @Override
                 public Location doInBackground(PlaceEdit... P) {
-                    return LocationGetter.get(P[0], 512);
+                    return seanfoy.LocationGetter.get(P[0], 4096);
                 }
                 public void onPostExecute(Location l) {
                     super.onPostExecute(l);
@@ -251,6 +246,12 @@ public class PlaceEdit extends Activity {
         EditText text = findTypedViewById(id);
         String txt = text.getText().toString();
         try {
+            try {
+                return Location.convert(txt);
+            }
+            catch (Exception e) {
+                // try something else
+            }
             return Double.parseDouble(txt);
         }
         catch (NumberFormatException e) {
