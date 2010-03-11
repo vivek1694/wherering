@@ -326,19 +326,19 @@ public class TestProximity extends ServiceTestCase<WRService> {
             throw new RuntimeException(e);
         }
     }
-    private boolean mServiceStarted() {
+    private Boolean mServiceStarted() {
         return privateGetter("mServiceStarted");
     }
-    private boolean mServiceBound() {
+    private Boolean mServiceBound() {
         return privateGetter("mServiceBound");
     }
-    private boolean mServiceAttached() {
+    private Boolean mServiceAttached() {
         return privateGetter("mServiceAttached");
     }
     private Service mService() {
         return privateGetter("mService");
     }
-    private boolean mServiceCreated() {
+    private Boolean mServiceCreated() {
         return privateGetter("mServiceCreated");
     }
     private <T> void privateSetter(String fieldname, T v) {
@@ -357,7 +357,7 @@ public class TestProximity extends ServiceTestCase<WRService> {
     private void set_mServiceCreated(boolean v) {
         privateSetter("mServiceCreated", v);
     }
-    private int mServiceId() {
+    private Integer mServiceId() {
         return privateGetter("mServiceId");
     }
     private void set_mServiceStarted(boolean mServiceStarted) {
