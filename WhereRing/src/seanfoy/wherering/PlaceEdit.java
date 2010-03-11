@@ -71,12 +71,14 @@ public class PlaceEdit extends Activity {
                             PlaceEdit.this.startService(new Intent(fullname(action.SIGHUP)));
                             PlaceEdit.this.finish();
                         }
-                        catch (IllegalStateException e) {
+                        catch (NonCoordinateException e) {
                             Toast.makeText(
                                 PlaceEdit.this,
                                 String.format(
-                                    "This place cannot be saved (%s)",
-                                    e.getMessage()),
+                                    getString(R.string.unsaveable_place),
+                                    String.format(
+                                        getString(R.string.not_a_coordinate),
+                                        e.getMessage())),
                                 Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -146,7 +148,9 @@ public class PlaceEdit extends Activity {
             R.string.place_edit_here,
             android.view.Menu.NONE,
             R.string.place_edit_here);
-        if (existsIntentActivity(showOnMap())) {
+
+        Place dummy = new Place(new Location(""), RingerMode.normal, "");
+        if (existsIntentActivity(showOnMap(dummy))) {
             menu.add(
                 android.view.Menu.NONE,
                 R.string.show_on_map,
@@ -160,12 +164,14 @@ public class PlaceEdit extends Activity {
         return
             getPackageManager().
             queryIntentActivities(
-                showOnMap(),
+                i,
                 PackageManager.MATCH_DEFAULT_ONLY).size() > 0;
     }
     
     private Intent showOnMap() {
-        Place p = asPlace();
+        return showOnMap(asPlace());
+    }
+    private Intent showOnMap(Place p) {
         Intent showOnMap = new Intent(Intent.ACTION_VIEW);
         showOnMap.setData(
             Uri.parse(
@@ -184,7 +190,13 @@ public class PlaceEdit extends Activity {
                 startActivity(showOnMap());
                 return true;
             }
-            catch (IllegalStateException e) {
+            catch (NonCoordinateException e) {
+                Toast.makeText(
+                    this,
+                    String.format(
+                        getString(R.string.not_a_coordinate),
+                        e.noncoordinate),
+                    Toast.LENGTH_SHORT);
                 return false;
             }
         }
@@ -223,7 +235,7 @@ public class PlaceEdit extends Activity {
                 String.format("no such item %s", x));
     }
     
-    public Place asPlace() {
+    public Place asPlace() throws NonCoordinateException {
         EditText name = findTypedViewById(R.id.name);
         Location l = new Location("whatever");
         l.setLatitude(extractCoordinate(R.id.latitude));
@@ -235,7 +247,7 @@ public class PlaceEdit extends Activity {
             rma.getItem(rms.getSelectedItemPosition());
         return new Place(l, rm, name.getText().toString());
     }
-    private double extractCoordinate(int id) {
+    private double extractCoordinate(int id) throws NonCoordinateException {
         EditText text = findTypedViewById(id);
         String txt = text.getText().toString();
         try {
@@ -262,8 +274,9 @@ public class PlaceEdit extends Activity {
             // or at least altered by our code.
             //text.setError(message);
             throw
-                new IllegalStateException(
+                new NonCoordinateException(
                     message,
+                    txt,
                     e);
         }
     }
@@ -291,4 +304,12 @@ public class PlaceEdit extends Activity {
         return (T)findViewById(id);
     }
     private DBAdapter db;
+    
+    public class NonCoordinateException extends IllegalStateException {
+        public NonCoordinateException(String message, String noncoordinate, Exception e) {
+            super(message, e);
+            this.noncoordinate = noncoordinate;
+        }
+        public String noncoordinate;
+    }
 }
