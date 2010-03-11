@@ -33,8 +33,9 @@ import seanfoy.Greenspun.Disposable;
 import seanfoy.Greenspun.Func1;
 import seanfoy.Greenspun.ROIterator;
 public class Place {
-    public Place(Location l, RingerMode ringerMode, String name) {
+    public Place(Location l, float radius, RingerMode ringerMode, String name) {
         this.location = l;
+        this.radius = radius;
         this.ringerMode = ringerMode;
         this.name = name;
     }
@@ -54,6 +55,7 @@ public class Place {
         Place result =
             new Place(
                 l,
+                c.getFloat(c.getColumnIndex("radius")),
                 RingerMode.fromInt(
                     c.getInt(c.getColumnIndex("ringer_mode"))),
                 c.getString(c.getColumnIndex("name")));
@@ -64,11 +66,12 @@ public class Place {
         new String [] {
             "latitude",
             "longitude",
+            "radius",
             "name",
             "ringer_mode"};
     
     public static Place fetch(DBAdapter adapter, final Location key) {
-        Place template = new Place(key, RingerMode.normal, "");
+        Place template = new Place(key, 0, RingerMode.normal, "");
         try {
             return
                 adapter.withCursor(
@@ -124,6 +127,7 @@ public class Place {
         initialValues.put("longitude", Location.convert(location.getLongitude(), Location.FORMAT_SECONDS));
         initialValues.put("name", name);
         initialValues.put("ringer_mode", ringerMode.ringer_mode);
+        initialValues.put("radius", radius);
         return initialValues;
     }
     
@@ -135,6 +139,7 @@ public class Place {
                     " longitude text," +
                     " name text," +
                     " ringer_mode integer," +
+                    " radius real," +
                     " constraint %s_PK primary key (latitude, longitude))",
                     TABLE_NAME, TABLE_NAME));
     }
@@ -151,6 +156,7 @@ public class Place {
     public final Location location;
     public RingerMode ringerMode;
     public String name;
+    public float radius = 20;
     
     private Map<String, Object> getValueEquality() {
         HashMap<String, Object> ve = new HashMap<String, Object>();

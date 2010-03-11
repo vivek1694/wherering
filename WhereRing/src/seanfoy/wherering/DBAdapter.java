@@ -143,14 +143,22 @@ public class DBAdapter {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            Place.teardownDDL(db);
-            onCreate(db);
+            if (oldVersion < 2) {
+                db.execSQL(
+                    String.format(
+                        "alter table %s add radius real default 25",
+                        Place.TABLE_NAME));
+            }
+            else {
+                Place.teardownDDL(db);
+                onCreate(db);                                
+            }
         }
     }
     
     private DatabaseHelper dbHelper;
     private SQLiteDatabase db;
     private static final String DB_NAME = "WhereRing";
-    private static final int DB_VER = 1;
+    private static final int DB_VER = 2;
     private Context ctx;
 }

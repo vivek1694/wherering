@@ -92,7 +92,7 @@ public class WRService extends Service {
             lm.addProximityAlert(
                 p.location.getLatitude(),
                 p.location.getLongitude(),
-                radiusM,
+                p.radius,
                 System.currentTimeMillis() + LM_EXPIRY,
                 pi);
         }
@@ -247,7 +247,6 @@ public class WRService extends Service {
     private static final String placeHCKeyName = WRBroadcastReceiver.class.getName() + ":lkphc-key";
     private int default_ringer_mode = AudioManager.RINGER_MODE_NORMAL;
     private int last_known_place_hc = 0;
-    static final int radiusM = 25;
     
     @SuppressWarnings("unchecked")
     public static <T> T getSystemService(Context ctx, String name) {

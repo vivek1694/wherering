@@ -80,17 +80,18 @@ public class LocationHelpers {
     }
 
     public static Place makePlaceDeLaConcorde() {
-        return makePlace("Place de la Concorde", 48.865594443, 2.32071667);
+        return makePlace("Place de la Concorde", 25, 48.865594443, 2.32071667);
     }
     
     public static Place makeNewbury() {
-        return makePlace("Newbury Street", 42.34928, -71.083725);
+        return makePlace("Newbury Street", 25, 42.34928, -71.083725);
     }
     
-    public static Place makePlace(String name, double lat, double lng) {
+    public static Place makePlace(String name, float radius, double lat, double lng) {
         Place place =
             new Place(
                 new Location(testProviderName),
+                radius,
                 RingerMode.normal,
                 name);
         place.location.setLatitude(lat);
@@ -99,7 +100,7 @@ public class LocationHelpers {
     }
     
     public static Place makeGoogleplex() {
-        return makePlace("Googleplex", 37.0625,-95.677068);
+        return makePlace("Googleplex", 40, 37.0625,-95.677068);
     }
     
     public final static String testProviderName = LocationManager.GPS_PROVIDER;
