@@ -78,7 +78,7 @@ public class PlaceEdit extends Activity {
                                     getString(R.string.unsaveable_place),
                                     String.format(
                                         getString(R.string.not_a_coordinate),
-                                        e.getMessage())),
+                                        e.noncoordinate)),
                                 Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -196,7 +196,7 @@ public class PlaceEdit extends Activity {
                     String.format(
                         getString(R.string.not_a_coordinate),
                         e.noncoordinate),
-                    Toast.LENGTH_SHORT);
+                    Toast.LENGTH_SHORT).show();
                 return false;
             }
         }
