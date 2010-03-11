@@ -25,4 +25,6 @@
     <string name="suggestion_box">suggestion box</string>
     <string name="known_issues">known issues</string>
     <string name="show_on_map">show on map</string>
+    <string name="not_a_coordinate">%s is not a coordinate</string>
+    <string name="unsaveable_place">This place cannot be saved (%s)</string>
 </resources>

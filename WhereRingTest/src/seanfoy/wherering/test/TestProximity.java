@@ -30,8 +30,10 @@ import android.content.Intent;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.test.ServiceTestCase;
+import android.util.Log;
 import seanfoy.Greenspun;
 import seanfoy.wherering.*;
+import seanfoy.wherering.Place.RingerMode;
 
 public class TestProximity extends ServiceTestCase<WRService> {
     public void testStartEmpty() {
@@ -49,7 +51,6 @@ public class TestProximity extends ServiceTestCase<WRService> {
     // public void testNoGPSAfterStop() {}
     
     public void testEntry() {
-        double limit = 1000; //ms
         Context ctx = getContext();
         
         Place dlc = LocationHelpers.makePlaceDeLaConcorde();
@@ -65,7 +66,6 @@ public class TestProximity extends ServiceTestCase<WRService> {
     }
     
     public void testExit() {
-        double limit = 1000; //ms
         Context ctx = getContext();
         Place dlc = LocationHelpers.makePlaceDeLaConcorde();
         dlc.ringerMode = Place.RingerMode.normal;
@@ -84,7 +84,6 @@ public class TestProximity extends ServiceTestCase<WRService> {
     }
     
     public void testPlaceToPlace() {
-        double limit = 1000; //ms
         Context ctx = getContext();
         Place dlc = LocationHelpers.makePlaceDeLaConcorde();
         dlc.ringerMode = Place.RingerMode.normal;
@@ -103,7 +102,6 @@ public class TestProximity extends ServiceTestCase<WRService> {
     }
     
     public void testPlaceToPlaceRestoration() {
-        double limit = 1000; //ms
         Context ctx = getContext();
         Place dlc = LocationHelpers.makePlaceDeLaConcorde();
         dlc.ringerMode = Place.RingerMode.normal;
@@ -145,6 +143,39 @@ public class TestProximity extends ServiceTestCase<WRService> {
             waitForRinger(limit, ctx, google);
         }
     }
+    
+    public void testUserOverride() {
+        Place googleplex = LocationHelpers.makeGoogleplex();
+        googleplex.ringerMode = RingerMode.normal;
+        Place newbury = LocationHelpers.makeNewbury();
+        newbury.ringerMode = RingerMode.vibrate;
+        RingerMode override = RingerMode.silent;
+        googleplex.upsert(db);
+        Context ctx = getContext();
+        establish(ctx, newbury);
+        LocationManager lm = getLM(ctx);
+        
+        startAndSettle(ctx);
+        LocationHelpers.teleport(ctx, lm, googleplex);
+        long delay = -System.currentTimeMillis();
+        waitForRinger(limit, ctx, googleplex);
+        delay += System.currentTimeMillis();
+        AudioManager am =
+            (AudioManager)ctx.getSystemService(Context.AUDIO_SERVICE);
+        am.setRingerMode(override.ringer_mode);
+        LocationHelpers.teleport(ctx, lm, newbury);
+        Greenspun.sleep(4 * delay);
+        assertEquals(
+                "WhereRing should not restore previous ring states when the user has adjusted the ring state while in a place.",
+                override.ringer_mode,
+                am.getRingerMode());
+        
+        // WhereRing should set the ringer on place
+        // entry even after user override in a previous
+        // place.
+        LocationHelpers.teleport(ctx, lm, googleplex);
+        waitForRinger(limit, ctx, googleplex);
+    }
 
     private void startAndSettle(Context ctx) {
         Intent wrsi = new Intent(ctx, WRService.class);
@@ -152,9 +183,16 @@ public class TestProximity extends ServiceTestCase<WRService> {
         while (!getService().isSubscribed()) {
             Greenspun.sleep(10);
         }
+        String tag = getClass().getName();
+        Log.i(
+            tag,
+            "service started and subscribed for alarms");
         // give the LocationManager time to setup
         // its onLocationChanged subscriptions
-        Greenspun.sleep(100);
+        Greenspun.sleep((long)(limit * 2));
+        Log.i(
+            tag,
+            "service subscribed for proximities. Probably.");
     }
 
     private void waitForRinger(double limit, Context ctx, Place place) {
@@ -199,6 +237,8 @@ public class TestProximity extends ServiceTestCase<WRService> {
         }
         super.tearDown();
     }
+    
+    double limit = 1000; //ms
 
     class CounterContext extends ContextWrapper {
         @Override
