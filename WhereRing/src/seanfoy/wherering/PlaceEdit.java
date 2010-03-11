@@ -127,6 +127,8 @@ public class PlaceEdit extends Activity {
         EditText nom = findTypedViewById(R.id.name);
         Spinner rm = findTypedViewById(R.id.ringer_mode);
         fillDataLocation(p.location);
+        EditText radius = findTypedViewById(R.id.radius);
+        radius.setText(Float.toString(p.radius));
         rm.setSelection(
             positionFor(
                 rm,
@@ -149,7 +151,7 @@ public class PlaceEdit extends Activity {
             android.view.Menu.NONE,
             R.string.place_edit_here);
 
-        Place dummy = new Place(new Location(""), RingerMode.normal, "");
+        Place dummy = new Place(new Location(""), 0, RingerMode.normal, "");
         if (existsIntentActivity(showOnMap(dummy))) {
             menu.add(
                 android.view.Menu.NONE,
@@ -240,12 +242,20 @@ public class PlaceEdit extends Activity {
         Location l = new Location("whatever");
         l.setLatitude(extractCoordinate(R.id.latitude));
         l.setLongitude(extractCoordinate(R.id.longitude));
+        EditText radius = findTypedViewById(R.id.radius);
+        float r = 25;
+        try {
+            r = Float.parseFloat(radius.getText().toString());
+        }
+        catch (NumberFormatException e) {
+            radius.setText(Float.toString(r));
+        }
         Spinner rms = findTypedViewById(R.id.ringer_mode);
         ArrayAdapter<RingerMode> rma =
             (ArrayAdapter<RingerMode>)rms.getAdapter();
         RingerMode rm =
             rma.getItem(rms.getSelectedItemPosition());
-        return new Place(l, rm, name.getText().toString());
+        return new Place(l, r, rm, name.getText().toString());
     }
     private double extractCoordinate(int id) throws NonCoordinateException {
         EditText text = findTypedViewById(id);

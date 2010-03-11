@@ -55,6 +55,14 @@
             android:id="@+id/longitude"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />
+          <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/radius" />
+          <EditText
+            android:id="@+id/radius"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
           <Spinner
             android:id="@+id/ringer_mode"
             android:layout_width="fill_parent"

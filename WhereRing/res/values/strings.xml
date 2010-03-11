@@ -11,6 +11,7 @@
     <string name="name">name</string>
     <string name="latitude">latitude</string>
     <string name="longitude">longitude</string>
+    <string name="radius">radius (m)</string>
     <string name="ringer_mode">ringer mode</string>
     <string name="done">done</string>
     <string name="revert">revert</string>

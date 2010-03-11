@@ -102,6 +102,13 @@ public class TestPlaceEdit extends ActivityInstrumentationTestCase2<PlaceEdit> {
         assertEquals(expected, countPlaces(db));
     }
     
+    public void testForSmokeN() throws Throwable {
+        makeThenEdit(LocationHelpers.makeNewbury());
+    }    
+    public void testForSmokeG() throws Throwable {
+        makeThenEdit(LocationHelpers.makeGoogleplex());
+    }
+    
     public void testExistingPlace() throws Throwable {
         int expected = countPlaces(db) + 1;
         makeThenEdit();
@@ -170,8 +177,11 @@ public class TestPlaceEdit extends ActivityInstrumentationTestCase2<PlaceEdit> {
     }
     
     private Place makeThenEdit() throws Throwable {
+        return makeThenEdit(LocationHelpers.makePlaceDeLaConcorde());
+    }
+    
+    private Place makeThenEdit(final Place place) throws Throwable {
         final Context ctx = getInstrumentation().getTargetContext();
-        final Place place = LocationHelpers.makePlaceDeLaConcorde();
         place.upsert(db);
         setActivityIntent(PlaceEdit.intentToEdit(ctx, place));
         final PlaceEdit placeEdit = getActivity();
