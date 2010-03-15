@@ -47,7 +47,7 @@ public class PlaceEdit extends Activity {
         db = new DBAdapter(getApplicationContext());
         db.open();
         
-        Spinner rm = (Spinner)findViewById(R.id.ringer_mode);
+        Spinner rm = findTypedViewById(R.id.ringer_mode);
         ArrayAdapter<RingerMode> ringers =
             new ArrayAdapter<RingerMode>(getApplicationContext(), android.R.layout.simple_spinner_item);
         ringers.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -151,7 +151,7 @@ public class PlaceEdit extends Activity {
             android.view.Menu.NONE,
             R.string.place_edit_here);
 
-        Place dummy = new Place(new Location(""), 0, RingerMode.normal, "");
+        Place dummy = new Place(new Location(""));
         if (existsIntentActivity(showOnMap(dummy))) {
             menu.add(
                 android.view.Menu.NONE,
@@ -238,7 +238,7 @@ public class PlaceEdit extends Activity {
     }
     
     public Place asPlace() throws NonCoordinateException {
-        EditText name = findTypedViewById(R.id.name);
+        final EditText nameField = findTypedViewById(R.id.name);
         Location l = new Location("whatever");
         l.setLatitude(extractCoordinate(R.id.latitude));
         l.setLongitude(extractCoordinate(R.id.longitude));
@@ -253,9 +253,14 @@ public class PlaceEdit extends Activity {
         Spinner rms = findTypedViewById(R.id.ringer_mode);
         ArrayAdapter<RingerMode> rma =
             (ArrayAdapter<RingerMode>)rms.getAdapter();
-        RingerMode rm =
+        final float r_final = r;
+        final RingerMode rm =
             rma.getItem(rms.getSelectedItemPosition());
-        return new Place(l, r, rm, name.getText().toString());
+        return new Place(l) {{
+            radius = r_final;
+            ringerMode = rm;
+            name = nameField.getText().toString();
+        }};
     }
     private double extractCoordinate(int id) throws NonCoordinateException {
         EditText text = findTypedViewById(id);

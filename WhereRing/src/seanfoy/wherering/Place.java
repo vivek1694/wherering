@@ -33,11 +33,8 @@ import seanfoy.Greenspun.Disposable;
 import seanfoy.Greenspun.Func1;
 import seanfoy.Greenspun.ROIterator;
 public class Place {
-    public Place(Location l, float radius, RingerMode ringerMode, String name) {
+    public Place(Location l) {
         this.location = l;
-        this.radius = radius;
-        this.ringerMode = ringerMode;
-        this.name = name;
     }
     
     public void upsert(DBAdapter adapter) {
@@ -53,12 +50,12 @@ public class Place {
         l.setLatitude(Location.convert(c.getString(c.getColumnIndex("latitude"))));
         l.setLongitude(Location.convert(c.getString(c.getColumnIndex("longitude"))));
         Place result =
-            new Place(
-                l,
-                c.getFloat(c.getColumnIndex("radius")),
-                RingerMode.fromInt(
-                    c.getInt(c.getColumnIndex("ringer_mode"))),
-                c.getString(c.getColumnIndex("name")));
+            new Place(l) {{
+                radius = c.getFloat(c.getColumnIndex("radius"));
+                ringerMode = RingerMode.fromInt(
+                        c.getInt(c.getColumnIndex("ringer_mode")));
+                name = c.getString(c.getColumnIndex("name"));
+            }};
         return result;
     }
     
@@ -71,7 +68,7 @@ public class Place {
             "ringer_mode"};
     
     public static Place fetch(DBAdapter adapter, final Location key) {
-        Place template = new Place(key, 0, RingerMode.normal, "");
+        Place template = new Place(key);
         try {
             return
                 adapter.withCursor(

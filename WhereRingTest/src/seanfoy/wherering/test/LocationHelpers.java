@@ -22,7 +22,6 @@ package seanfoy.wherering.test;
 import junit.framework.TestCase;
 import seanfoy.Greenspun;
 import seanfoy.wherering.Place;
-import seanfoy.wherering.Place.RingerMode;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -87,15 +86,18 @@ public class LocationHelpers {
         return makePlace("Newbury Street", 25, 42.34928, -71.083725);
     }
     
-    public static Place makePlace(String name, float radius, double lat, double lng) {
+    public static Place makePlace(String name, float radius, final double lat, final double lng) {
+        Location l = new Location(testProviderName);
+        final float r = radius;
+        final String n = name;
         Place place =
-            new Place(
-                new Location(testProviderName),
-                radius,
-                RingerMode.normal,
-                name);
-        place.location.setLatitude(lat);
-        place.location.setLongitude(lng);
+            new Place(l) {{
+                radius = r;
+                ringerMode = RingerMode.normal;
+                name = n;
+                location.setLatitude(lat);
+                location.setLongitude(lng);
+            }};
         return place;
     }
     
