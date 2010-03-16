@@ -151,14 +151,14 @@ public final class Greenspun {
     public interface Disposable<T extends Throwable> {
         public void close() throws T;
     }
-    public static <R> void dispose(boolean supress, R res) {
+    public static <R> void dispose(boolean suppress, R res) {
         if (!(res instanceof Disposable<?>)) return;
         Disposable<?> d = (Disposable<?>)res;
         try {
             d.close();
         }
         catch (Throwable e) {
-            if (!supress) {
+            if (!suppress) {
                 if (e instanceof RuntimeException) {
                     throw (RuntimeException)e;
                 }
