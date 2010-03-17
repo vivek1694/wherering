@@ -65,7 +65,7 @@ public class PlaceEdit extends Activity {
                         try {
                             PlaceEdit.this.setResult(RESULT_OK);
                             Place old = getOriginalPlace();
-                            Place nouveau = asPlace();
+                            Place nouveau = toPlace();
                             nouveau.upsert(db);
                             if (old != null && !old.equals(nouveau)) old.delete(db);
                             PlaceEdit.this.startService(new Intent(fullname(action.SIGHUP)));
@@ -171,7 +171,7 @@ public class PlaceEdit extends Activity {
     }
     
     private Intent showOnMap() {
-        return showOnMap(asPlace());
+        return showOnMap(toPlace());
     }
     private Intent showOnMap(Place p) {
         Intent showOnMap = new Intent(Intent.ACTION_VIEW);
@@ -237,7 +237,7 @@ public class PlaceEdit extends Activity {
                 String.format("no such item %s", x));
     }
     
-    public Place asPlace() throws NonCoordinateException {
+    public Place toPlace() throws NonCoordinateException {
         final EditText nameField = findTypedViewById(R.id.name);
         Location l = new Location("whatever");
         l.setLatitude(extractCoordinate(R.id.latitude));
