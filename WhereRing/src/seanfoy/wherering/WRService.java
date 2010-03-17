@@ -126,7 +126,7 @@ public class WRService extends Service {
             }
             last_known_place_hc = phc;
             am.setRingerMode(localRingMode);
-            return AlertExtras.asBundle(placename, entering, true, localRingMode);
+            return AlertExtras.toBundle(placename, entering, true, localRingMode);
         }
         else if (!entering && last_known_place_hc == phc) {
             last_known_place_hc = 0;
@@ -134,13 +134,13 @@ public class WRService extends Service {
             // (unless the user has changed it meanwhile)
             if (am.getRingerMode() == localRingMode) {
                 am.setRingerMode(default_ringer_mode);
-                return AlertExtras.asBundle(placename, entering, true, default_ringer_mode);
+                return AlertExtras.toBundle(placename, entering, true, default_ringer_mode);
             }
             else {
                 default_ringer_mode = am.getRingerMode();
             }
         }
-        return AlertExtras.asBundle(placename, entering, false, am.getRingerMode());
+        return AlertExtras.toBundle(placename, entering, false, am.getRingerMode());
     }
     private final static HashMap<Integer, Place> getConfig(Context ctx) {
         final HashMap<Integer, Place> config = new HashMap<Integer, Place>();

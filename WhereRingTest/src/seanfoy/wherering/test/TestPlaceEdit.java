@@ -143,7 +143,7 @@ public class TestPlaceEdit extends ActivityInstrumentationTestCase2<PlaceEdit> {
                     PlaceEdit a = getActivity();
                     EditText latitude = findTypedViewById(a, R.id.latitude);
                     latitude.setText("42");
-                    placeholder[0] = a.asPlace();
+                    placeholder[0] = a.toPlace();
                     Button done = findTypedViewById(a, R.id.done);
                     done.performClick();
                 }
@@ -164,7 +164,7 @@ public class TestPlaceEdit extends ActivityInstrumentationTestCase2<PlaceEdit> {
                     PlaceEdit a = getActivity();
                     EditText latitude = findTypedViewById(a, R.id.latitude);
                     latitude.setText("42");
-                    placeholder[0] = a.asPlace();
+                    placeholder[0] = a.toPlace();
                     Button revert = findTypedViewById(a, R.id.revert);
                     revert.performClick();
                 }
@@ -188,7 +188,7 @@ public class TestPlaceEdit extends ActivityInstrumentationTestCase2<PlaceEdit> {
         runTestOnUiThread(
             new Runnable() {
                 public void run() {
-                    Place loaded = placeEdit.asPlace();
+                    Place loaded = placeEdit.toPlace();
                     assertEquals(place, loaded);
                 }
             });
@@ -227,7 +227,7 @@ public class TestPlaceEdit extends ActivityInstrumentationTestCase2<PlaceEdit> {
         runTestOnUiThread(
             new Runnable() {
                 public void run() {
-                    assertEquals(delaconcorde, placeEdit.asPlace());
+                    assertEquals(delaconcorde, placeEdit.toPlace());
                 }
             });
     }

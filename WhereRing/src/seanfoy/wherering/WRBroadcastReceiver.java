@@ -80,7 +80,7 @@ public class WRBroadcastReceiver extends BroadcastReceiver {
         UPDATED,
         NEW_RINGER_MODE;
         
-        public static Bundle asBundle(String placeName, boolean entering, boolean updated, int newRingerMode) {
+        public static Bundle toBundle(String placeName, boolean entering, boolean updated, int newRingerMode) {
             Bundle result = new Bundle();
             result.putString(PLACE_NAME.toString(), placeName);
             result.putBoolean(ENTERING.toString(), entering);
