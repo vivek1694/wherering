@@ -224,10 +224,10 @@ public final class Greenspun {
     }
 
     public static void sleep(long millis) {
-        long deadline = System.currentTimeMillis() + millis;
-        while (System.currentTimeMillis() < deadline) {
+        long deadline = System.nanoTime() + millis * 1000;
+        while (System.nanoTime() < deadline) {
             try {
-                Thread.sleep(Math.max(0, deadline - System.currentTimeMillis()));
+                Thread.sleep(Math.max(0, (deadline - System.nanoTime()) / 1000));
             }
             catch (InterruptedException e) {
                 // try, try again

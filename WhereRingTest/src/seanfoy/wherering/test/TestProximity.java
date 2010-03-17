@@ -157,14 +157,14 @@ public class TestProximity extends ServiceTestCase<WRService> {
         
         startAndSettle(ctx);
         LocationHelpers.teleport(ctx, lm, googleplex);
-        long delay = -System.currentTimeMillis();
+        long delay = -System.nanoTime();
         waitForRinger(limit, ctx, googleplex);
-        delay += System.currentTimeMillis();
+        delay += System.nanoTime();
         AudioManager am =
             (AudioManager)ctx.getSystemService(Context.AUDIO_SERVICE);
         am.setRingerMode(override.ringer_mode);
         LocationHelpers.teleport(ctx, lm, newbury);
-        Greenspun.sleep(4 * delay);
+        Greenspun.sleep(4 * delay / 1000);
         assertEquals(
                 "WhereRing should not restore previous ring states when the user has adjusted the ring state while in a place.",
                 override.ringer_mode,
