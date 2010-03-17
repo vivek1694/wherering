@@ -19,7 +19,9 @@
  */
 package seanfoy.wherering;
 
+import static seanfoy.wherering.intent.IntentHelpers.fullname;
 import seanfoy.Greenspun;
+import seanfoy.wherering.intent.action;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -149,6 +151,7 @@ public class NotablePlaces extends Activity {
         if (requestCode != PLACE_EDIT) throw new IllegalArgumentException("unrecognized request");
         if (responseCode != RESULT_OK) return;
         db.open();
+        startService(new Intent(fullname(action.SIGHUP)));
         fillData();
     }
     
