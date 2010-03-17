@@ -201,8 +201,9 @@ public class TestProximity extends ServiceTestCase<WRService> {
         while (
                 am.getRingerMode() != place.ringerMode.ringer_mode &&
                 System.currentTimeMillis() < deadline) {
-            Greenspun.sleep(10);
+            Greenspun.sleep(16);
         }
+        if (System.currentTimeMillis() > deadline) Log.i("waitForRinger", "deadline passed");
         assertEquals(place.ringerMode.ringer_mode, am.getRingerMode());
     }
     
@@ -238,7 +239,7 @@ public class TestProximity extends ServiceTestCase<WRService> {
         super.tearDown();
     }
     
-    double limit = 1000; //ms
+    double limit = 4096; //ms
 
     class CounterContext extends ContextWrapper {
         @Override
