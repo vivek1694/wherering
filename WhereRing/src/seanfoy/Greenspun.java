@@ -42,14 +42,19 @@ public final class Greenspun {
 		sb.append(")");
 		return sb.toString();
 	}
-	public static <T> boolean equals(T a, Object b, Func1<T, ? extends Map<String, ?>> f) {
+	@SuppressWarnings("unchecked")
+    public static <T> boolean equals(T a, Object b, Func1<T, ? extends Map<String, ?>> f) {
 		if (a == b) return true;
 		if (a == null ^ b == null) return false;
 		if (a == null) return true;
-		
-		if (!a.getClass().isAssignableFrom(b.getClass())) return false;
-		@SuppressWarnings("unchecked")
-		T tb = (T)b;
+
+		T tb;
+		try {
+    		tb = (T)b;
+		}
+		catch (ClassCastException e) {
+		    return false;
+		}
 		
 		Map<String, ?> ma = f.f(a);
 		Map<String, ?> mb = f.f(tb);
