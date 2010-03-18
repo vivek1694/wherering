@@ -103,7 +103,10 @@ public class Control extends Activity {
         c.setAccuracy(Criteria.ACCURACY_FINE);
         String p = lm.getBestProvider(c, true);
         Location l = lm.getLastKnownLocation(p);
-        txt.setText(String.format(getString(R.string.last_location), l));
+        txt.setText(
+            String.format(
+                getString(R.string.last_location),
+                l == null ? "unknown" : l));
     }
     
     @Override
