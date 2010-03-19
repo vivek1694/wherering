@@ -19,8 +19,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/initd" />
-        <TextView android:id="@+id/lastLocation" android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
         <Button android:id="@+id/alert" android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:text="@string/preview_alert" />
     </LinearLayout>

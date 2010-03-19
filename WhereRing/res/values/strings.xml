@@ -17,7 +17,6 @@
     <string name="revert">revert</string>
     <string name="place_edit_here">use current location</string>
     <string name="no_location_available">Your location is unknown.</string>
-    <string name="last_location">Last known location: %s</string>
     <string name="entering">entering %s</string>
     <string name="leaving">leaving %s</string>
     <string name="change">new ringer mode %s</string>
