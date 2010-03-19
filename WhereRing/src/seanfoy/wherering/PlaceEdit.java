@@ -320,7 +320,7 @@ public class PlaceEdit extends Activity {
     }
     private DBAdapter db;
     
-    public class NonCoordinateException extends IllegalStateException {
+    public static class NonCoordinateException extends IllegalStateException {
         public NonCoordinateException(String message, String noncoordinate, Exception e) {
             super(message, e);
             this.noncoordinate = noncoordinate;
