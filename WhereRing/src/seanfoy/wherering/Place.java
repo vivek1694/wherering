@@ -224,5 +224,23 @@ public class Place {
             if (!c.isClosed()) c.close();
         }
     }
+
+    public static boolean emptyDB(DBAdapter db) {
+        return
+            db.withDB(
+                new Func1<SQLiteDatabase, Boolean>() {
+                    public Boolean f(SQLiteDatabase db) {
+                        Cursor c = null;
+                        try {
+                            c = db.rawQuery(String.format("select count(*) from %s", TABLE_NAME), null);
+                            c.moveToFirst();
+                            return 0L == c.getLong(0);
+                        }
+                        finally {
+                            if (c != null) c.close();
+                        }
+                    }
+                });
+    }
 }
 

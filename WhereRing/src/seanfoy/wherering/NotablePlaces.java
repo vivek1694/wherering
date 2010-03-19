@@ -25,6 +25,7 @@ import seanfoy.wherering.intent.action;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,22 +43,39 @@ public class NotablePlaces extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.notable_places);
 
         db = new DBAdapter(getApplicationContext());
         db.open();
 
-        fillData();
-        ListView placeList =
-            (ListView)findViewById(R.id.place_list);
-        placeList.setOnItemClickListener(
-            new OnItemClickListener() {
-                public void onItemClick(AdapterView<?> aview, View view,
-                        int position, long id) {
-                    editPlace((Place)aview.getItemAtPosition(position));
-                }
-            });
-        registerForContextMenu(placeList);
+        setupView();
+    }
+
+    private void setupView() {
+        if (Place.emptyDB(db)) {
+            setContentView(R.layout.empty_places);
+            TextView emptyPlaces =
+                (TextView)findViewById(R.id.empty_places);
+            emptyPlaces.setText(
+                Html.fromHtml(
+                    String.format(
+                        getString(R.string.empty_places),
+                        getString(R.string.notable_places),
+                        getString(R.string.add_place))));
+        }
+        else {
+            setContentView(R.layout.notable_places);
+            fillData();
+            ListView placeList =
+                (ListView)findViewById(R.id.place_list);
+            placeList.setOnItemClickListener(
+                new OnItemClickListener() {
+                    public void onItemClick(AdapterView<?> aview, View view,
+                            int position, long id) {
+                        editPlace((Place)aview.getItemAtPosition(position));
+                    }
+                });
+            registerForContextMenu(placeList);
+        }
     }
     
     @Override
@@ -129,7 +147,7 @@ public class NotablePlaces extends Activity {
             @Override
             public void selected(NotablePlaces activity, Place place) {
                 place.delete(activity.db);
-                activity.fillData();
+                activity.setupView();
             }
         },
         EDIT("edit") {
@@ -152,7 +170,7 @@ public class NotablePlaces extends Activity {
         if (responseCode != RESULT_OK) return;
         db.open();
         startService(new Intent(fullname(action.SIGHUP)));
-        fillData();
+        setupView();
     }
     
     private static final int PLACE_EDIT = 1;
