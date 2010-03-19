@@ -36,6 +36,7 @@ import android.view.View.OnClickListener;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class Control extends Activity {
@@ -67,14 +68,6 @@ public class Control extends Activity {
                         appCtx.stopService(new Intent(appCtx, WRService.class));
                     }
                 });
-        TextView lastLocation = (TextView)findViewById(R.id.lastLocation);
-        lastLocation.setOnClickListener(
-            new OnClickListener() {
-                public void onClick(View v) {
-                    updateLastLocation((TextView)v);
-                }
-            });
-        updateLastLocation(lastLocation);
         
         SharedPreferences prefs = WRBroadcastReceiver.getPrefs(appCtx);
         CheckBox initd = (CheckBox)findViewById(R.id.initd);
@@ -95,20 +88,7 @@ public class Control extends Activity {
                     appCtx,
                     fullname(seanfoy.wherering.intent.action.ALERT)));
     }
-    
-    private void updateLastLocation(TextView txt) {
-        Context ctx = getApplicationContext();
-        LocationManager lm = WRService.getSystemService(ctx, Context.LOCATION_SERVICE);
-        Criteria c = new Criteria();
-        c.setAccuracy(Criteria.ACCURACY_FINE);
-        String p = lm.getBestProvider(c, true);
-        Location l = lm.getLastKnownLocation(p);
-        txt.setText(
-            String.format(
-                getString(R.string.last_location),
-                l == null ? "unknown" : l));
-    }
-    
+        
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	super.onCreateOptionsMenu(menu);
