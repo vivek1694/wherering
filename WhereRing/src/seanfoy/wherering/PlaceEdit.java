@@ -120,8 +120,12 @@ public class PlaceEdit extends Activity {
     
     private void fillData() {
         Place p = getOriginalPlace();
-        if (p == null) return;
-        fillData(p);
+        if (p == null) {
+            placeEditHere();
+        }
+        else {
+            fillData(p);
+        }
     }
     public void fillData(Place p) {
         EditText nom = findTypedViewById(R.id.name);
@@ -203,27 +207,37 @@ public class PlaceEdit extends Activity {
             }
         }
         else if (item.getItemId() == R.string.place_edit_here) {
-            new AsyncLooperTask<PlaceEdit, Void, Location>() {
-                @Override
-                public Location doInBackground(PlaceEdit... P) {
-                    return seanfoy.LocationGetter.get(P[0], 4096);
-                }
-                public void onPostExecute(Location l) {
-                    super.onPostExecute(l);
-                    if (l == null) {
-                        Toast.makeText(
-                            PlaceEdit.this,
-                            R.string.no_location_available,
-                            Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    PlaceEdit.this.fillDataLocation(l);
-                }
-            }.execute(PlaceEdit.this);
-
+            placeEditHere();
             return true;
         }
         return result;
+    }
+
+    private void placeEditHere() {
+        new AsyncLooperTask<PlaceEdit, Void, Location>() {
+            @Override
+            public Location doInBackground(PlaceEdit... P) {
+                return seanfoy.LocationGetter.get(P[0], 4096);
+            }
+            public void onPostExecute(Location l) {
+                super.onPostExecute(l);
+                if (l == null) {
+                    Toast.makeText(
+                        PlaceEdit.this,
+                        R.string.no_location_available,
+                        Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                PlaceEdit.this.fillDataLocation(l);
+                EditText radius = findTypedViewById(R.id.radius);
+                if (radius.getText().length() == 0) {
+                    // suggest a radius that comports
+                    // with the accuracy of the fix
+                    // we got in this location
+                    radius.setText(Float.toString(l.getAccuracy() * 3));
+                }
+            }
+        }.execute(PlaceEdit.this);
     }
     
     private <T> int positionFor(Spinner s, T x) {
