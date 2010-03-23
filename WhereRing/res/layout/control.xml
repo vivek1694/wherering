@@ -6,6 +6,11 @@
     <LinearLayout
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:orientation="vertical">
+        <TextView
+            android:id="@+id/welcome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/welcome" />
         <Button
             android:id="@+id/notable_places"
             android:layout_width="wrap_content"

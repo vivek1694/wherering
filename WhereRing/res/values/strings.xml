@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">WhereRing</string>
+    <string name="welcome">To get started, add a place to %s. You will need to be in that place or know its latitude and longitude.</string>
     <string name="alert_ticker">@string/app_name</string>
     <string name="notable_places">notable places</string>
     <string name="add_place">add place</string>

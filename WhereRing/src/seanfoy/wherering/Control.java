@@ -32,6 +32,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class Control extends Activity {
@@ -40,7 +41,7 @@ public class Control extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.control);
         final Context appCtx = getApplicationContext();
-
+        
         findViewById(R.id.notable_places).
             setOnClickListener(
                 new OnClickListener() {
@@ -56,32 +57,60 @@ public class Control extends Activity {
                         appCtx.startService(new Intent(appCtx, WRService.class));
                     }
                 });
-       findViewById(R.id.deactivate).
+        findViewById(R.id.deactivate).
             setOnClickListener(
                 new OnClickListener() {
                     public void onClick(View v) {
                         appCtx.stopService(new Intent(appCtx, WRService.class));
                     }
                 });
-        
-        SharedPreferences prefs = WRBroadcastReceiver.getPrefs(appCtx);
-        CheckBox initd = (CheckBox)findViewById(R.id.initd);
-        initd.setChecked(prefs.getBoolean(android.content.Intent.ACTION_BOOT_COMPLETED, true));
-        initd.setOnCheckedChangeListener(
-            new OnCheckedChangeListener() {
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    WRBroadcastReceiver.getPrefs(appCtx).
-                        edit().
-                        putBoolean(android.content.Intent.ACTION_BOOT_COMPLETED, isChecked).
-                        commit();
-                }
-            });
-        
+        ((CheckBox)findViewById(R.id.initd)).
+            setOnCheckedChangeListener(
+                new OnCheckedChangeListener() {
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        WRBroadcastReceiver.getPrefs(appCtx).
+                            edit().
+                            putBoolean(android.content.Intent.ACTION_BOOT_COMPLETED, isChecked).
+                            commit();
+                    }
+                });
+
         findViewById(R.id.alert).
             setOnClickListener(
                 new BroadcastingClickListener(
                     appCtx,
                     fullname(seanfoy.wherering.intent.action.ALERT)));
+
+        setupView();
+    }
+    
+    private void setupView() {
+        Context appCtx = getApplicationContext();
+        SharedPreferences prefs = WRBroadcastReceiver.getPrefs(appCtx);
+        CheckBox initd = (CheckBox)findViewById(R.id.initd);
+        initd.setChecked(prefs.getBoolean(android.content.Intent.ACTION_BOOT_COMPLETED, true));
+        final TextView welcome =
+            (TextView)findViewById(R.id.welcome);
+        welcome.setText(
+                String.format(
+                    getText(R.string.welcome).toString(),
+                    getText(R.string.notable_places)));
+        DBAdapter.withDBAdapter(
+                appCtx,
+                new seanfoy.Greenspun.Func1<DBAdapter, Void>() {
+                    public Void f(DBAdapter db) {
+                        if (!Place.emptyDB(db)) {
+                            welcome.setVisibility(View.GONE);
+                        }
+                        return null;
+                    }
+                });
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        setupView();
     }
         
     @Override
