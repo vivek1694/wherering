@@ -121,7 +121,7 @@ public class PlaceEdit extends Activity {
     private void fillData() {
         Place p = getOriginalPlace();
         if (p == null) {
-            placeEditHere();
+            placeEditHere(false);
         }
         else {
             fillData(p);
@@ -130,7 +130,7 @@ public class PlaceEdit extends Activity {
     public void fillData(Place p) {
         EditText nom = findTypedViewById(R.id.name);
         Spinner rm = findTypedViewById(R.id.ringer_mode);
-        fillDataLocation(p.location);
+        fillDataLocation(true, p.location);
         EditText radius = findTypedViewById(R.id.radius);
         radius.setText(Float.toString(p.radius));
         rm.setSelection(
@@ -139,11 +139,20 @@ public class PlaceEdit extends Activity {
                 p.ringerMode));
         nom.setText(p.name);
     }
-    private void fillDataLocation(Location location) {
-        EditText lat = findTypedViewById(R.id.latitude);
-        EditText lng = findTypedViewById(R.id.longitude);
-        lat.setText(Double.toString(location.getLatitude()));
-        lng.setText(Double.toString(location.getLongitude()));
+    private void fillDataLocation(boolean clobber, Location location) {
+        fillDataLocationCoordinate(
+            clobber,
+            (EditText)findTypedViewById(R.id.latitude),
+            location.getLatitude());
+        fillDataLocationCoordinate(
+            clobber,
+            (EditText)findTypedViewById(R.id.longitude),
+            location.getLongitude());
+    }
+    private void fillDataLocationCoordinate(boolean clobber, EditText widget, double v) {
+        if (clobber || widget.getText().length() == 0) {
+            widget.setText(Double.toString(v));
+        }
     }
     
     @Override
@@ -207,13 +216,13 @@ public class PlaceEdit extends Activity {
             }
         }
         else if (item.getItemId() == R.string.place_edit_here) {
-            placeEditHere();
+            placeEditHere(true);
             return true;
         }
         return result;
     }
 
-    private void placeEditHere() {
+    private void placeEditHere(final boolean clobber) {
         new AsyncLooperTask<PlaceEdit, Void, Location>() {
             @Override
             public Location doInBackground(PlaceEdit... P) {
@@ -228,7 +237,7 @@ public class PlaceEdit extends Activity {
                         Toast.LENGTH_SHORT).show();
                     return;
                 }
-                PlaceEdit.this.fillDataLocation(l);
+                PlaceEdit.this.fillDataLocation(clobber, l);
                 EditText radius = findTypedViewById(R.id.radius);
                 if (radius.getText().length() == 0) {
                     // suggest a radius that comports
