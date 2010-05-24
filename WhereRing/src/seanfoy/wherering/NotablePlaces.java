@@ -58,7 +58,10 @@ public class NotablePlaces extends Activity {
             emptyPlaces.setText(
                 Html.fromHtml(
                     String.format(
-                        getString(R.string.empty_places),
+                        String.format(
+                            "%s %s",
+                            getString(R.string.empty_places),
+                            getString(R.string.how_to_add_places)),
                         getString(R.string.notable_places),
                         getString(R.string.add_place))));
         }
