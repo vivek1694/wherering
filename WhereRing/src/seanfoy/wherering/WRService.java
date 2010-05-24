@@ -204,7 +204,7 @@ public class WRService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         int result = START_STICKY;
-        String intentAction = intent.getAction();
+        String intentAction = intent == null ? null : intent.getAction();
         if (intentAction == null) {
             startup();
             return result;
