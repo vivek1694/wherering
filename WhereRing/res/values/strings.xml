@@ -28,5 +28,6 @@
     <string name="show_on_map">show on map</string>
     <string name="not_a_coordinate">%s is not a coordinate</string>
     <string name="unsaveable_place">This place cannot be saved (%s)</string>
-    <string name="empty_places">You don\'t have any %s to display. To add places, press &lt;em>Menu&lt;/em> and touch &lt;em>%s&lt;/em>.</string>
+    <string name="empty_places">You don\'t have any %s to display.</string>
+    <string name="how_to_add_places">To add places, press &lt;em>Menu&lt;/em> and touch &lt;em>%s&lt;/em>.</string>
 </resources>

@@ -20,6 +20,7 @@
 package seanfoy.wherering;
 
 import static seanfoy.wherering.intent.IntentHelpers.fullname;
+import seanfoy.Greenspun.Func1;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +34,7 @@ import android.view.View.OnClickListener;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class Control extends Activity {
@@ -46,8 +48,24 @@ public class Control extends Activity {
             setOnClickListener(
                 new OnClickListener() {
                     public void onClick(View arg0) {
+                        Boolean emptyDB =
+                            DBAdapter.withDBAdapter(appCtx, new Func1<DBAdapter, Boolean>() {
+                                public Boolean f(DBAdapter db) {
+                                    return Place.emptyDB(db);
+                                }
+                            });
                         startActivity(
-                            new Intent(Control.this, NotablePlaces.class));
+                            new Intent(
+                                Control.this,
+                                emptyDB ? PlaceEdit.class : NotablePlaces.class));
+                        if (emptyDB) {
+                            Toast.makeText(
+                                appCtx,
+                                String.format(
+                                    getString(R.string.empty_places),
+                                    getString(R.string.notable_places)),
+                                Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
         findViewById(R.id.activate).
