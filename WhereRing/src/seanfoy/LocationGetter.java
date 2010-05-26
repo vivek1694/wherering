@@ -83,6 +83,8 @@ public class LocationGetter implements LocationListener {
         Criteria c = new Criteria();
         c.setAccuracy(Criteria.ACCURACY_FINE);
         String p = lm.getBestProvider(c, true);
+        if (p == null) return null;
+        
         final LocationGetter getter = new LocationGetter(handler.getLooper());
         try {
             lm.requestLocationUpdates(
